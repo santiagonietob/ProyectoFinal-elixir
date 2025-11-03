@@ -34,32 +34,23 @@ defmodule HackathonApp.Dominios.Comando do
   # ----------------- Helpers de parseo -----------------
 
   # /help  |  help
-  defp do_parse(linea) do
+ defp do_parse(linea) do
     [cmd | rest] = String.split(linea, " ", parts: 2)
     cmd = String.downcase(cmd)
 
     case cmd do
-      "help"   -> {:ok, "help", []}
-      "teams"  -> {:ok, "teams", []}
-
-      "join" ->
-        case rest do
-          [equipo] when equipo != "" -> {:ok, "join", [equipo]}
-          _ -> {:error, "Uso: /join <equipo>"}
-        end
-
-      "project" ->
-        case rest do
-          [equipo] when equipo != "" -> {:ok, "project", [equipo]}
-          _ -> {:error, "Uso: /project <equipo>"}
-        end
-
       "chat" ->
         case rest do
           [resto] ->
             case String.split(resto, " ", parts: 2) do
-              [equipo, mensaje] when equipo != "" and String.trim(mensaje) != "" ->
-                {:ok, "chat", [equipo, mensaje]}
+              [equipo, mensaje_raw] ->
+                mensaje = String.trim(mensaje_raw)
+                if equipo != "" and mensaje != "" do
+                  {:ok, "chat", [equipo, mensaje]}
+                else
+                  {:error, "Uso: /chat <equipo> <mensaje>"}
+                end
+
               _ ->
                 {:error, "Uso: /chat <equipo> <mensaje>"}
             end
@@ -67,8 +58,7 @@ defmodule HackathonApp.Dominios.Comando do
           _ -> {:error, "Uso: /chat <equipo> <mensaje>"}
         end
 
-      _ ->
-        {:error, "Comando no reconocido. Usa /help para ver los comandos disponibles."}
+      # ... handlers "help" | "teams" | "join" | "project"
     end
   end
 

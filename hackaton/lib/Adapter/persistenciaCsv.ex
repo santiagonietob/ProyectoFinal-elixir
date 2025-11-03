@@ -1,6 +1,7 @@
 defmodule HackathonApp.Adapter.PersistenciaCSV do
   @moduledoc "Lectura/escritura simple de CSV con encabezado."
   @type fila :: [String.t()]
+  
 
   def leer(ruta) do
     case File.read(ruta) do
@@ -14,13 +15,12 @@ defmodule HackathonApp.Adapter.PersistenciaCSV do
     end
   end
 
-  def agregar(ruta, fila :: fila) do
-    # Crea con encabezado si no existe
+ @spec agregar(String.t(), fila) :: :ok
+  def agregar(ruta, fila) when is_list(fila) do
     if not File.exists?(ruta), do: crear_con_encabezado(ruta)
     File.write!(ruta, Enum.join(fila, ",") <> "\n", [:append])
     :ok
   end
-
   @spec reescribir(String.t(), [fila]) :: :ok
 def reescribir(ruta, filas) do
   unless File.exists?(ruta), do: crear_con_encabezado(ruta)

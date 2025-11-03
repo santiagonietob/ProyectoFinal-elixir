@@ -40,13 +40,21 @@ defmodule HackathonApp.Servicios.ComandoServicio do
   # ---------- Helpers ----------
 
   # Cambia a {:ok, usuario} | {:error, msg}, así encadena en el with/else.
-  defp obtener_usuario(nombre) when is_binary(nombre) and byte_size(String.trim(nombre)) > 0 do
-    case UsuarioServicio.buscar_por_nombre(String.trim(nombre)) do
-      nil     -> {:error, "Usuario no encontrado. Por favor regístrate primero."}
-      usuario -> {:ok, usuario}
+   defp obtener_usuario(nombre) when is_binary(nombre) do
+    nombre = String.trim(nombre)
+
+    if nombre == "" do
+      {:error, "Nombre de usuario inválido."}
+    else
+      case UsuarioServicio.buscar_por_nombre(nombre) do
+        nil     -> {:error, "Usuario no encontrado. Por favor regístrate primero."}
+        usuario -> {:ok, usuario}
+      end
     end
   end
+
   defp obtener_usuario(_), do: {:error, "Nombre de usuario inválido."}
+
 
   # Normaliza el comando de entrada y valida vacío/nil
   defp normalizar(nil), do: {:error, "Comando vacío. Usa /help para ver opciones."}

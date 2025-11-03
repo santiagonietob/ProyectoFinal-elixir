@@ -3,9 +3,9 @@ defmodule Hackaton do
   Punto de entrada de la aplicación Hackathon colaborativa.
   """
 
-  alias Hackaton.Adapter.InterfazConsola
+  alias Hackaton.Adapter.InterfazConsolaEquipos
 
   def iniciar do
-    InterfazConsola.iniciar()
+    InterfazConsolaEquipos.iniciar()
   end
 end
