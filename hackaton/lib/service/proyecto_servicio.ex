@@ -5,7 +5,8 @@ defmodule HackathonApp.Service.ProyectoServicio do
 
   alias HackathonApp.Domain.{Proyecto, Avance}
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
-  alias HackathonApp.Adapter.ProyectoStream
+  alias HackathonApp.Adapter.AvancesCliente
+
 
   @ruta_proy "data/proyectos.csv"
   @ruta_av "data/avances.csv"
@@ -83,30 +84,30 @@ defmodule HackathonApp.Service.ProyectoServicio do
 
   # ---------- Avances ----------
 
-  @spec agregar_avance(integer(), String.t()) :: {:ok, Avance.t()} | {:error, String.t()}
-  def agregar_avance(proyecto_id, contenido) do
-    if proyecto?(proyecto_id) do
-      id = siguiente_id_avance()
-      fecha = DateTime.utc_now() |> DateTime.to_iso8601()
+ @spec agregar_avance(integer(), String.t()) :: {:ok, Avance.t()} | {:error, String.t()}
+def agregar_avance(proyecto_id, contenido) do
+  if proyecto?(proyecto_id) do
+    id    = siguiente_id_avance()
+    fecha = DateTime.utc_now() |> DateTime.to_iso8601()
 
-      :ok =
-        CSV.agregar(@ruta_av, [
-          Integer.to_string(id),
-          Integer.to_string(proyecto_id),
-          limpiar(contenido),
-          fecha
-        ])
+    :ok =
+      CSV.agregar(@ruta_av, [
+        Integer.to_string(id),
+        Integer.to_string(proyecto_id),
+        limpiar(contenido),
+        fecha
+      ])
 
-      avance = %Avance{id: id, proyecto_id: proyecto_id, contenido: contenido, fecha_iso: fecha}
+    avance = %Avance{id: id, proyecto_id: proyecto_id, contenido: contenido, fecha_iso: fecha}
 
-      # Notificación “tiempo real”
-      ProyectoStream.publicar_avance(proyecto_id, avance)
+    # Notificación en tiempo real (IPC nodos)
+    AvancesCliente.publicar_avance(avance)  
 
-      {:ok, avance}
-    else
-      {:error, "Proyecto no existe"}
-    end
+    {:ok, avance}
+  else
+    {:error, "Proyecto no existe"}
   end
+end
 
   @spec listar_avances(integer()) :: [Avance.t()]
   def listar_avances(proyecto_id) do
