@@ -23,11 +23,6 @@ defmodule HackathonApp.Service.UsuarioServicio do
   def buscar_por_nombre(nombre),
     do: Enum.find(listar(), &(&1.nombre == String.trim(nombre)))
 
-  # ------- Registro (compatible) -------
-  # Antiguo: registra sin password (no recomendado)
-  def registrar(nombre, correo, rol \\ "participante") do
-    registrar(nombre, correo, rol, nil)
-  end
 
   # Nuevo: con password (string) -> genera salt+hash
   def registrar(nombre, correo, rol, password) do
