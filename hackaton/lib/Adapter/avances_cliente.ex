@@ -1,18 +1,20 @@
 # lib/adapter/avances_cliente.ex
 defmodule HackathonApp.Adapter.AvancesCliente do
   @moduledoc "Cliente que se conecta a un nodo remoto y escucha avances en tiempo real."
-  @servicio_remoto {:servicio_avances, :nodoservidor@localhost}  # ajusta el nodo
+  # ajusta el nodo
+  @servicio_remoto {:servicio_avances, :nodoservidor@localhost}
 
   def suscribirse(remoto_nodo \\ :nodoservidor@localhost) do
     # 1) Conectar con el nodo remoto
-    case Node.connect(remoto_nodo) do                           # ⇐ Node.connect/1
+    # ⇐ Node.connect/1
+    case Node.connect(remoto_nodo) do
       true ->
         send({:servicio_avances, remoto_nodo}, {:suscribir, self()})
-        IO.puts("📡 Suscrito a avances en #{inspect remoto_nodo}. Esperando… (Ctrl+C para salir)")
+        IO.puts("📡 Suscrito a avances en #{inspect(remoto_nodo)}. Esperando… (Ctrl+C para salir)")
         escuchar()
 
       false ->
-        IO.puts(" No se pudo conectar con #{inspect remoto_nodo}")
+        IO.puts(" No se pudo conectar con #{inspect(remoto_nodo)}")
     end
   end
 

@@ -13,7 +13,9 @@ defmodule HackathonApp.Adapter.PersistenciaCSV do
         |> Enum.drop_while(&(&1 == ""))
         |> drop_encabezado()
         |> Enum.map(&String.split(&1, ","))
-      _ -> []
+
+      _ ->
+        []
     end
   end
 
@@ -62,7 +64,8 @@ defmodule HackathonApp.Adapter.PersistenciaCSV do
     cond do
       String.ends_with?(ruta, "usuarios.csv") ->
         # ANTES: "id,nombre,correo,rol"
-        "id,nombre,correo,rol,salt,hash"   # NUEVO
+        # NUEVO
+        "id,nombre,correo,rol,salt,hash"
 
       String.ends_with?(ruta, "equipos.csv") ->
         "id,nombre,descripcion,tema,activo"

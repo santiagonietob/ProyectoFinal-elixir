@@ -4,8 +4,10 @@ defmodule HackathonApp.Adapter.AvancesServidor do
   @nombre_servicio :servicio_avances
 
   def iniciar do
-    Process.register(self(), @nombre_servicio)      # ⇐ registrar servicio
-    loop([])                                        # estado = lista de PIDs suscritos
+    # ⇐ registrar servicio
+    Process.register(self(), @nombre_servicio)
+    # estado = lista de PIDs suscritos
+    loop([])
   end
 
   defp loop(suscriptores) do

@@ -1,8 +1,10 @@
-# lib/service/autorizacion.ex
 defmodule HackathonApp.Service.Autorizacion do
   @moduledoc "Chequeo de permisos por rol."
 
-  @type rol :: "participante" | "mentor" | "organizador"
+  @typedoc "Rol de usuario (texto: \"participante\", \"mentor\" u \"organizador\")."
+  @type rol :: String.t()
+
+  @typedoc "Acción controlada por permisos."
   @type accion ::
           :crear_equipo
           | :unir_usuario
@@ -14,26 +16,25 @@ defmodule HackathonApp.Service.Autorizacion do
           | :anunciar_general
           | :dar_mentoria
 
-  @spec can?(rol, accion) :: boolean
-  def can?("organizador", _), do: true
+  @spec can?(rol(), accion()) :: boolean()
 
-  def can?("mentor", accion) do
-    accion in [
-      :ver_proyecto,
-      :dar_mentoria,
-      :enviar_mensaje
-    ]
-  end
+  # Organizador puede todo
+  def can?("organizador", _accion), do: true
 
-  def can?("participante", accion) do
-    accion in [
-      :registrar_proyecto,
-      :cambiar_estado_proyecto,
-      :agregar_avance,
-      :ver_proyecto,
-      :enviar_mensaje
-    ]
-  end
+  # Mentor
+  def can?("mentor", :ver_proyecto), do: true
+  def can?("mentor", :dar_mentoria), do: true
+  def can?("mentor", :enviar_mensaje), do: true
+  def can?("mentor", _), do: false
 
+  # Participante
+  def can?("participante", :registrar_proyecto), do: true
+  def can?("participante", :cambiar_estado_proyecto), do: true
+  def can?("participante", :agregar_avance), do: true
+  def can?("participante", :ver_proyecto), do: true
+  def can?("participante", :enviar_mensaje), do: true
+  def can?("participante", _), do: false
+
+  # Cualquier otro rol/desconocido
   def can?(_, _), do: false
 end

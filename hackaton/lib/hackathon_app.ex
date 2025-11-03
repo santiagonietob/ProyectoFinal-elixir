@@ -1,5 +1,5 @@
-# lib/hackat.ex
-defmodule HackathonApp.CLI do
+# lib/hackathon_app.ex
+defmodule HackathonApp do
   @moduledoc """
   Punto de entrada OTP de la app.
   Inicia el árbol de supervisión (puedes agregar procesos aquí).

@@ -14,6 +14,7 @@ defmodule HackathonApp.Service.UsuarioServicio do
       # id,nombre,correo,rol
       [id, n, c, r] ->
         %Usuario{id: String.to_integer(id), nombre: n, correo: c, rol: r, salt: nil, hash: nil}
+
       # id,nombre,correo,rol,salt,hash
       [id, n, c, r, s, h] ->
         %Usuario{id: String.to_integer(id), nombre: n, correo: c, rol: r, salt: s, hash: h}
@@ -22,7 +23,6 @@ defmodule HackathonApp.Service.UsuarioServicio do
 
   def buscar_por_nombre(nombre),
     do: Enum.find(listar(), &(&1.nombre == String.trim(nombre)))
-
 
   # Nuevo: con password (string) -> genera salt+hash
   def registrar(nombre, correo, rol, password) do
@@ -54,13 +54,17 @@ defmodule HackathonApp.Service.UsuarioServicio do
   end
 
   # ------- Helpers de credenciales -------
-  defp credenciales(nil), do: {nil, nil}   # compat
+  # compat
+  defp credenciales(nil), do: {nil, nil}
   defp credenciales(""), do: {nil, nil}
+
   defp credenciales(password) do
     salt = :crypto.strong_rand_bytes(16) |> Base.encode64()
+
     hash =
       :crypto.hash(:sha256, salt <> password)
       |> Base.encode16(case: :lower)
+
     {salt, hash}
   end
 end

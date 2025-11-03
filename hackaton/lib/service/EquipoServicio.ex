@@ -1,4 +1,4 @@
-defmodule Hackaton.Service.EquipoServicio do
+defmodule HackathonApp.Service.EquipoServicio do
   @moduledoc """
   Gestión de equipos (CSV):
   - Crear equipo (evita duplicados)
@@ -7,19 +7,19 @@ defmodule Hackaton.Service.EquipoServicio do
   - Listar miembros y conteo por equipo
   """
 
-  alias Hackaton.Domain.{Equipo, Membresia}
-  alias Hackaton.Adapter.PersistenciaCSV, as: CSV
+  alias HackathonApp.Domain.{Equipo, Membresia}
+  alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
   # Si luego usas búsqueda por usuario, descomenta:
   # alias Hackaton.Service.UsuarioServicio
 
-  @equipos_csv     "priv/equipos.csv"
-  @membresias_csv  "priv/membresias.csv"
+  @equipos_csv "priv/equipos.csv"
+  @membresias_csv "priv/membresias.csv"
 
   # ---------- EQUIPOS ----------
 
   @doc "Crea un equipo nuevo (evita duplicado por nombre)"
   @spec crear_equipo(String.t(), String.t(), String.t(), boolean()) ::
-        {:ok, Equipo.t()} | {:error, String.t()}
+          {:ok, Equipo.t()} | {:error, String.t()}
   def crear_equipo(nombre, descripcion, tema, activo \\ true) do
     if Enum.any?(listar_todos(), &(&1.nombre == String.trim(nombre))) do
       {:error, "Ya existe un equipo con ese nombre"}
@@ -35,7 +35,14 @@ defmodule Hackaton.Service.EquipoServicio do
           if(activo, do: "true", else: "false")
         ])
 
-      {:ok, %Equipo{id: id, nombre: String.trim(nombre), descripcion: descripcion, tema: tema, activo: activo}}
+      {:ok,
+       %Equipo{
+         id: id,
+         nombre: String.trim(nombre),
+         descripcion: descripcion,
+         tema: tema,
+         activo: activo
+       }}
     end
   end
 
@@ -69,7 +76,7 @@ defmodule Hackaton.Service.EquipoServicio do
 
   @doc "Une un usuario (por id) a un equipo (por nombre). Evita duplicados."
   @spec unirse_a_equipo(String.t(), pos_integer(), String.t()) ::
-        {:ok, Equipo.t()} | {:error, String.t()}
+          {:ok, Equipo.t()} | {:error, String.t()}
   def unirse_a_equipo(nombre_equipo, usuario_id, rol_en_equipo \\ "miembro") do
     with %Equipo{} = equipo <- buscar_equipo_por_nombre(nombre_equipo),
          false <- ya_miembro?(usuario_id, equipo.id) do
@@ -82,7 +89,7 @@ defmodule Hackaton.Service.EquipoServicio do
 
       {:ok, equipo}
     else
-      nil  -> {:error, "No existe el equipo #{String.trim(nombre_equipo)}"}
+      nil -> {:error, "No existe el equipo #{String.trim(nombre_equipo)}"}
       true -> {:error, "El usuario ya pertenece a #{String.trim(nombre_equipo)}"}
     end
   end
@@ -91,7 +98,9 @@ defmodule Hackaton.Service.EquipoServicio do
   @spec listar_miembros(String.t()) :: [Membresia.t()]
   def listar_miembros(nombre_equipo) do
     case buscar_equipo_por_nombre(nombre_equipo) do
-      nil -> []
+      nil ->
+        []
+
       %Equipo{id: eq_id} ->
         CSV.leer(@membresias_csv)
         |> Enum.filter(fn [_u_id, e_id, _] -> e_id == Integer.to_string(eq_id) end)
