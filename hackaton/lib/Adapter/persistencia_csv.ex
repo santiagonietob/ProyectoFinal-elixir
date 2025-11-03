@@ -1,5 +1,7 @@
-defmodule Hackaton.Adapter.PersistenciaCSV do
+# lib/adapter/persistenciaCsv.ex
+defmodule HackathonApp.Adapter.PersistenciaCSV do
   @moduledoc "Lectura/escritura simple de CSV con encabezado."
+
   @type fila :: [String.t()]
 
   @spec leer(String.t()) :: [fila]
@@ -11,9 +13,7 @@ defmodule Hackaton.Adapter.PersistenciaCSV do
         |> Enum.drop_while(&(&1 == ""))
         |> drop_encabezado()
         |> Enum.map(&String.split(&1, ","))
-
-      _ ->
-        []
+      _ -> []
     end
   end
 
@@ -38,7 +38,7 @@ defmodule Hackaton.Adapter.PersistenciaCSV do
 
     cuerpo =
       filas
-      |> Enum.map(&Enum.join(&1, ",")) # cada fila
+      |> Enum.map(&Enum.join(&1, ","))
       |> Enum.join("\n")
 
     contenido =
@@ -50,10 +50,7 @@ defmodule Hackaton.Adapter.PersistenciaCSV do
 
   # --------- helpers ---------
 
-  defp ensure_dir!(ruta) do
-    ruta |> Path.dirname() |> File.mkdir_p!()
-  end
-
+  defp ensure_dir!(ruta), do: ruta |> Path.dirname() |> File.mkdir_p!()
   defp drop_encabezado([_enc | resto]), do: resto
   defp drop_encabezado([]), do: []
 
@@ -63,13 +60,27 @@ defmodule Hackaton.Adapter.PersistenciaCSV do
 
   defp default_header(ruta) do
     cond do
-      String.ends_with?(ruta, "usuarios.csv")   -> "id,nombre,correo,rol"
-      String.ends_with?(ruta, "equipos.csv")    -> "id,nombre,descripcion,tema,activo"
-      String.ends_with?(ruta, "membresias.csv") -> "usuario_id,equipo_id,rol_en_equipo"
-      String.ends_with?(ruta, "proyectos.csv")  -> "id,equipo_id,titulo,categoria,estado,fecha_registro"
-      String.ends_with?(ruta, "avances.csv")    -> "id,proyecto_id,contenido,fecha_iso"
-      String.ends_with?(ruta, "mensajes.csv")   -> "id,equipo_id,usuario_id,texto,fecha_iso"
-      true                                      -> "col1,col2,col3"
+      String.ends_with?(ruta, "usuarios.csv") ->
+        # ANTES: "id,nombre,correo,rol"
+        "id,nombre,correo,rol,salt,hash"   # NUEVO
+
+      String.ends_with?(ruta, "equipos.csv") ->
+        "id,nombre,descripcion,tema,activo"
+
+      String.ends_with?(ruta, "membresias.csv") ->
+        "usuario_id,equipo_id,rol_en_equipo"
+
+      String.ends_with?(ruta, "proyectos.csv") ->
+        "id,equipo_id,titulo,categoria,estado,fecha_registro"
+
+      String.ends_with?(ruta, "avances.csv") ->
+        "id,proyecto_id,contenido,fecha_iso"
+
+      String.ends_with?(ruta, "mensajes.csv") ->
+        "id,equipo_id,usuario_id,texto,fecha_iso"
+
+      true ->
+        "col1,col2,col3"
     end
   end
 end
