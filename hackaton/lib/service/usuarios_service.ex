@@ -4,7 +4,7 @@ defmodule HackathonApp.Service.UsuarioServicio do
   alias HackathonApp.Domain.Usuario
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
-  @ruta "datos/usuarios.csv"
+  @ruta "data/usuarios.csv"
 
   def listar do
     CSV.leer(@ruta)
