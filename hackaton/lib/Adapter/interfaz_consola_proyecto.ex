@@ -20,7 +20,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
       "2" ->
         estado()
-        iniciar()
+        iniciar() 
 
       "3" ->
         avance()

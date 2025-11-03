@@ -1,36 +1,23 @@
-defmodule HackathonApp.Service.UsuarioServicio do
-  @moduledoc "Registro y consulta de usuarios (CSV)."
+# lib/service/usuario_servicio.ex
+defmodule Hackaton.Service.UsuarioServicio do
+  alias Hackaton.Domain.Usuario
+  alias Hackaton.Adapter.PersistenciaCSV
 
-  alias HackathonApp.Domain.Usuario
-  alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
+  @usuarios_csv "priv/usuarios.csv"
 
-  @ruta "data/usuarios.csv"
+  def registrar(nombre, correo, rol \\ "participante") do
+    id = System.unique_integer([:positive])
+    PersistenciaCSV.agregar(@usuarios_csv, [to_string(id), nombre, correo, rol])
+    {:ok, %Usuario{id: id, nombre: nombre, correo: correo, rol: rol}}
+  end
 
-  def listar do
-    CSV.leer(@ruta)
-    |> Enum.map(fn [id, n, c, r] ->
-      %Usuario{id: String.to_integer(id), nombre: n, correo: c, rol: r}
+  def listar() do
+    PersistenciaCSV.leer(@usuarios_csv)
+    |> Enum.map(fn [id,nombre,correo,rol] ->
+      %Usuario{id: String.to_integer(id), nombre: nombre, correo: correo, rol: rol}
     end)
   end
 
-  def buscar_por_nombre(nombre) do
-    Enum.find(listar(), &(&1.nombre == String.trim(nombre)))
-  end
-
-  def registrar(nombre, correo, rol \\ "participante") do
-    if buscar_por_nombre(nombre) do
-      {:error, "Ya existe un usuario con ese nombre"}
-    else
-      id = siguiente_id()
-      :ok = CSV.agregar(@ruta, [to_string(id), nombre, correo, rol])
-      {:ok, %Usuario{id: id, nombre: nombre, correo: correo, rol: rol}}
-    end
-  end
-
-  defp siguiente_id do
-    case listar() do
-      [] -> 1
-      xs -> Enum.max_by(xs, & &1.id).id + 1
-    end
-  end
+  def buscar_por_nombre(nombre),
+    do: listar() |> Enum.find(&(&1.nombre == nombre))
 end

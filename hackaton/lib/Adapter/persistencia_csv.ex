@@ -1,4 +1,4 @@
-defmodule HackathonApp.Adapter.PersistenciaCSV do
+defmodule Hackaton.Adapter.PersistenciaCSV do
   @moduledoc "Lectura/escritura simple de CSV con encabezado."
   @type fila :: [String.t()]
 
@@ -38,7 +38,7 @@ defmodule HackathonApp.Adapter.PersistenciaCSV do
 
     cuerpo =
       filas
-      |> Enum.map(&Enum.join(&1, ","))
+      |> Enum.map(&Enum.join(&1, ",")) # cada fila
       |> Enum.join("\n")
 
     contenido =
@@ -63,26 +63,13 @@ defmodule HackathonApp.Adapter.PersistenciaCSV do
 
   defp default_header(ruta) do
     cond do
-      String.ends_with?(ruta, "usuarios.csv") ->
-        "id,nombre,correo,rol"
-
-      String.ends_with?(ruta, "equipos.csv") ->
-        "id,nombre,descripcion,tema,activo"
-
-      String.ends_with?(ruta, "membresias.csv") ->
-        "usuario_id,equipo_id,rol_en_equipo"
-
-      String.ends_with?(ruta, "proyectos.csv") ->
-        "id,equipo_id,titulo,categoria,estado,fecha_registro"
-
-      String.ends_with?(ruta, "avances.csv") ->
-        "id,proyecto_id,contenido,fecha_iso"
-
-      String.ends_with?(ruta, "mensajes.csv") ->
-        "id,equipo_id,usuario_id,texto,fecha_iso"
-
-      true ->
-        "col1,col2,col3"
+      String.ends_with?(ruta, "usuarios.csv")   -> "id,nombre,correo,rol"
+      String.ends_with?(ruta, "equipos.csv")    -> "id,nombre,descripcion,tema,activo"
+      String.ends_with?(ruta, "membresias.csv") -> "usuario_id,equipo_id,rol_en_equipo"
+      String.ends_with?(ruta, "proyectos.csv")  -> "id,equipo_id,titulo,categoria,estado,fecha_registro"
+      String.ends_with?(ruta, "avances.csv")    -> "id,proyecto_id,contenido,fecha_iso"
+      String.ends_with?(ruta, "mensajes.csv")   -> "id,equipo_id,usuario_id,texto,fecha_iso"
+      true                                      -> "col1,col2,col3"
     end
   end
 end
