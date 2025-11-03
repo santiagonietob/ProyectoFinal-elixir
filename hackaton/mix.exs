@@ -13,11 +13,12 @@ defmodule Hackaton.MixProject do
 
   # Run "mix help compile.app" to learn about applications.
  def application do
-    [
-      extra_applications: [:logger],
-      mod: {Hackaton.Application, []}
-    ]
-  end
+  [
+    extra_applications: [:logger]
+    # sin :mod => no intenta arrancar un Application inexistente
+  ]
+end
+
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do

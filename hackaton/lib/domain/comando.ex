@@ -1,56 +1,75 @@
-# Módulo: Comando
-# Descripción: Procesa e interpreta comandos de texto ingresados por
-# los usuarios en la interfaz de consola.
-#
-# Relaciones con otros módulos:
-# - ComandoServicio: Utiliza este módulo para procesar comandos
-# - Interactúa indirectamente con todos los servicios
-
 defmodule HackathonApp.Dominios.Comando do
   @moduledoc """
-  Define la estructura y procesamiento de comandos de consola.
-  Los comandos permiten a los usuarios interactuar con el sistema
-  usando una sintaxis simple tipo '/comando argumento'.
+  Parser de comandos de consola (capa dominio, sin E/S).
+  Convención de retorno:
+    {:ok, comando :: String.t(), args :: [String.t()]} | {:error, motivo}
   """
 
   # Lista de comandos disponibles y sus descripciones
   @comandos %{
-    "teams" => "Lista equipos activos",
-    "join" => "Unirse a un equipo: /join <equipo>",
+    "teams"   => "Lista equipos activos",
+    "join"    => "Unirse a un equipo: /join <equipo>",
     "project" => "Ver proyecto de un equipo: /project <equipo>",
-    "chat" => "Entrar al chat de un equipo: /chat <equipo>",
-    "help" => "Muestra esta ayuda"
+    "chat"    => "Enviar mensaje al chat: /chat <equipo> <mensaje>",
+    "help"    => "Muestra esta ayuda"
   }
 
+  @type parse_result :: {:ok, String.t(), [String.t()]} | {:error, String.t()}
+
   @doc """
-  Analiza un comando ingresado por el usuario y lo descompone en sus partes.
-
-  Parámetros:
-    - texto_comando: Texto completo del comando (ej: "/join Alpha")
-
-  Retorna:
-    - {:ok, comando, argumentos} si el comando es válido
-    - {:error, mensaje} si el comando no es reconocido
+  Parsea una línea de entrada. Acepta con o sin '/' inicial.
+  No hace I/O ni llama servicios.
   """
-  def interpretar_comando(texto_comando) when is_binary(texto_comando) do
-    case String.split(String.trim(texto_comando), " ", parts: 2) do
-      [comando | argumentos] ->
-        nombre_comando = String.replace_prefix(comando, "/", "")
-        if Map.has_key?(@comandos, nombre_comando) do
-          {:ok, nombre_comando, List.to_string(argumentos)}
-        else
-          {:error, "Comando no reconocido. Usa /help para ver los comandos disponibles."}
-        end
-      _ ->
-        {:error, "Formato inválido. Los comandos deben empezar con /"}
+  @spec interpretar_comando(String.t()) :: parse_result
+  def interpretar_comando(texto) when is_binary(texto) do
+    texto = String.trim(texto)
+
+    if texto == "" do
+      {:error, "Entrada vacía. Usa /help para ver los comandos disponibles."}
+    else
+      do_parse(quitar_barra(texto))
     end
   end
 
+  # ----------------- Helpers de parseo -----------------
+
+  # /help  |  help
+ defp do_parse(linea) do
+    [cmd | rest] = String.split(linea, " ", parts: 2)
+    cmd = String.downcase(cmd)
+
+    case cmd do
+      "chat" ->
+        case rest do
+          [resto] ->
+            case String.split(resto, " ", parts: 2) do
+              [equipo, mensaje_raw] ->
+                mensaje = String.trim(mensaje_raw)
+                if equipo != "" and mensaje != "" do
+                  {:ok, "chat", [equipo, mensaje]}
+                else
+                  {:error, "Uso: /chat <equipo> <mensaje>"}
+                end
+
+              _ ->
+                {:error, "Uso: /chat <equipo> <mensaje>"}
+            end
+
+          _ -> {:error, "Uso: /chat <equipo> <mensaje>"}
+        end
+
+      # ... handlers "help" | "teams" | "join" | "project"
+    end
+  end
+
+  defp quitar_barra("/" <> resto), do: resto
+  defp quitar_barra(otro), do: otro
+
   @doc """
-  Devuelve la lista de todos los comandos disponibles con sus descripciones.
-  Útil para mostrar la ayuda del sistema.
+  Devuelve lista de {comando, descripción} para que el Adapter la formatee.
   """
-  def obtener_comandos_disponibles do
-    @comandos
+  @spec listar_comandos() :: [{String.t(), String.t()}]
+  def listar_comandos do
+    @comandos |> Enum.into([]) |> Enum.sort()
   end
 end
