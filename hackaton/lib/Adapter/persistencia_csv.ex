@@ -18,7 +18,21 @@ defmodule Persistencia.CSV do
     File.write!(ruta, contenido <> "\n")
   end
 
-  def agregar_fila!(ruta, fila_lista) do
+  def agregar_fila_si_no_existe!(ruta, fila_lista, id_posicion \\ 0) do
+  id_nuevo = Enum.at(fila_lista, id_posicion)
+
+  filas =
+    if File.exists?(ruta),
+      do: File.read!(ruta) |> String.split("\n", trim: true),
+      else: []
+
+  existe = Enum.any?(filas, fn linea ->
+    String.starts_with?(linea, id_nuevo <> ",")
+  end)
+
+  if not existe do
     File.write!(ruta, Enum.join(fila_lista, ",") <> "\n", [:append])
   end
+end
+
 end
