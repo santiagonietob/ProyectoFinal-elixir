@@ -57,29 +57,23 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   # Acciones del menú
   # -------------------------
 
-  defp registrar_usuario do
-   nombre = ask("Nombre: ")
-correo = ask("Correo: ")
-rol    = ask("Rol (participante|mentor|organizador): ")
-pass   = ask("Contraseña: ")
+defp registrar_usuario do
+  nombre = ask("Nombre: ") |> String.trim()
+  correo = ask("Correo: ") |> String.trim()
+  rol    = ask("Rol (participante|mentor|organizador): ") |> String.trim()
+  pass   = ask("Contraseña: ")
 
-case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
-  {:ok, u}   -> IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
-  {:error, m} -> IO.puts("Error: #{m}")
-end
-    # Soporta proyecto con o sin registrar/4
-    res =
-      if function_exported?(UsuarioServicio, :registrar, 4) do
-        apply(UsuarioServicio, :registrar, [nombre, correo, rol, pass])
-      else
-        apply(UsuarioServicio, :registrar, [nombre, correo, rol])
-      end
-
-    case res do
-      {:ok, u} -> IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
-      {:error, m} -> IO.puts("Error: #{m}")
-    end
+  case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
+    {:ok, u} ->
+      IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
+    {:error, "Ya existe un usuario con ese nombre"} ->
+      IO.puts(" El usuario '#{nombre}' ya está registrado")
+    {:error, m} ->
+      IO.puts(" Error: #{m}")
   end
+end
+
+
 
   defp login do
     nombre = ask("Usuario: ")
