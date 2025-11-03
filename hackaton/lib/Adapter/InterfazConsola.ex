@@ -16,12 +16,28 @@ defmodule HackathonApp.Adapter.InterfazConsola do
     IO.puts("0) Salir")
 
     case IO.gets("> ") |> String.trim() do
-      "1" -> InterfazConsolaEquipos.iniciar(); iniciar()
-      "2" -> InterfazConsolaProyectos.iniciar(); iniciar()
-      "3" -> InterfazConsolaChat.iniciar(); iniciar()
-      "4" -> InterfazConsolaMentoria.iniciar(); iniciar()
-      "0" -> IO.puts("Hasta pronto!")
-      _ -> IO.puts("Opción inválida"); iniciar()
+      "1" ->
+        InterfazConsolaEquipos.iniciar()
+        iniciar()
+
+      "2" ->
+        InterfazConsolaProyectos.iniciar()
+        iniciar()
+
+      "3" ->
+        InterfazConsolaChat.iniciar()
+        iniciar()
+
+      "4" ->
+        InterfazConsolaMentoria.iniciar()
+        iniciar()
+
+      "0" ->
+        IO.puts("Hasta pronto!")
+
+      _ ->
+        IO.puts("Opción inválida")
+        iniciar()
     end
   end
 end

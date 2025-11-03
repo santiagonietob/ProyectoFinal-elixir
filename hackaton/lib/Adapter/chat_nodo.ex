@@ -5,7 +5,8 @@ defmodule Adapter.ChatNodo do
 
   ## === SERVIDOR (PC A) ===
   def iniciar_servidor() do
-    Process.register(self(), @nombre_servicio) # registra el proceso local
+    # registra el proceso local
+    Process.register(self(), @nombre_servicio)
     IO.puts("Servidor de chat iniciado: #{inspect(Node.self())} - #{@nombre_servicio}")
     loop_servidor()
   end
@@ -28,7 +29,8 @@ defmodule Adapter.ChatNodo do
   ## === CLIENTE (PC B) ===
   # nodo_servidor: :"nodoservidor@servidor"  (debe coincidir con --sname del servidor)
   def conectar(nodo_servidor) do
-    Node.connect(nodo_servidor) # true/false
+    # true/false
+    Node.connect(nodo_servidor)
   end
 
   def enviar_mensaje(nodo_servidor, mapa_mensaje) do

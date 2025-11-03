@@ -24,7 +24,8 @@ defmodule HackathonApp.Adaptadores.CommandAdapter do
   defp ejecutar({:ok, "help", _args}, _uid), do: listar_comandos()
 
   defp ejecutar({:ok, "teams", _args}, _uid) do
-    equipos = EquipoServicio.listar_equipos_con_conteo() # [{nombre, conteo}]
+    # [{nombre, conteo}]
+    equipos = EquipoServicio.listar_equipos_con_conteo()
     {:ok, formatear_equipos(equipos)}
   end
 
@@ -47,8 +48,11 @@ defmodule HackathonApp.Adaptadores.CommandAdapter do
   # /chat <equipo> <mensaje...>
   defp ejecutar({:ok, "chat", [nombre_equipo | resto]}, uid) do
     mensaje = Enum.join(resto, " ") |> String.trim()
+
     cond do
-      mensaje == "" -> {:error, "Uso: /chat <equipo> <mensaje>"}
+      mensaje == "" ->
+        {:error, "Uso: /chat <equipo> <mensaje>"}
+
       true ->
         case ChatServicio.enviar(nombre_equipo, uid, mensaje) do
           :ok -> {:ok, "Mensaje enviado a #{nombre_equipo}"}

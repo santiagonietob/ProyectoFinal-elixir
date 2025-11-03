@@ -11,19 +11,20 @@ defmodule HackathonApp.Service.EquipoServicio do
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
   alias HackathonApp.Service.UsuarioServicio
 
-  @ruta_equipos "datos/equipos.csv"
-  @ruta_membres "datos/membresias.csv"
+  @ruta_equipos "data/equipos.csv"
+  @ruta_membres "data/membresias.csv"
 
   # ---------- EQUIPOS ----------
 
   @doc "Crea un equipo nuevo (evita duplicado por nombre)"
   @spec crear_equipo(String.t(), String.t(), String.t(), boolean()) ::
-        {:ok, Equipo.t()} | {:error, String.t()}
+          {:ok, Equipo.t()} | {:error, String.t()}
   def crear_equipo(nombre, descripcion, tema, activo \\ true) do
     if Enum.any?(listar_todos(), &(&1.nombre == nombre)) do
       {:error, "Ya existe un equipo con ese nombre"}
     else
       id = siguiente_id_equipo()
+
       :ok =
         CSV.agregar(@ruta_equipos, [
           Integer.to_string(id),
@@ -69,15 +70,16 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   @doc "Une un usuario (por id) a un equipo (por nombre)"
   @spec unirse_a_equipo(String.t(), pos_integer(), String.t()) ::
-        {:ok, Equipo.t()} | {:error, String.t()}
+          {:ok, Equipo.t()} | {:error, String.t()}
   def unirse_a_equipo(nombre_equipo, usuario_id, rol_en_equipo \\ "miembro") do
     with %Equipo{} = equipo <- buscar_equipo_por_nombre(nombre_equipo),
          false <- ya_miembro?(usuario_id, equipo.id) do
-      :ok = CSV.agregar(@ruta_membres, [
-        Integer.to_string(usuario_id),
-        Integer.to_string(equipo.id),
-        rol_en_equipo
-      ])
+      :ok =
+        CSV.agregar(@ruta_membres, [
+          Integer.to_string(usuario_id),
+          Integer.to_string(equipo.id),
+          rol_en_equipo
+        ])
 
       {:ok, equipo}
     else
@@ -132,7 +134,7 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   @doc "Crea equipo 'Equipo <tema>' y añade por nombres de usuario (si existen)"
   @spec crear_equipo_por_afinidad([String.t()], String.t(), String.t()) ::
-        {:ok, Equipo.t()} | {:error, String.t()}
+          {:ok, Equipo.t()} | {:error, String.t()}
   def crear_equipo_por_afinidad(nombres_participantes, tema, descripcion \\ "") do
     nombre_equipo = "Equipo #{tema}"
 

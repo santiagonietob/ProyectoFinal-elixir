@@ -17,6 +17,7 @@ defmodule HackathonApp.Adapter.ProyectoStream do
     for pid <- :pg.get_members(@group_ns, clave(proyecto_id)) do
       send(pid, {:avance, avance})
     end
+
     :ok
   end
 

@@ -7,11 +7,11 @@ defmodule HackathonApp.Dominios.Comando do
 
   # Lista de comandos disponibles y sus descripciones
   @comandos %{
-    "teams"   => "Lista equipos activos",
-    "join"    => "Unirse a un equipo: /join <equipo>",
+    "teams" => "Lista equipos activos",
+    "join" => "Unirse a un equipo: /join <equipo>",
     "project" => "Ver proyecto de un equipo: /project <equipo>",
-    "chat"    => "Enviar mensaje al chat: /chat <equipo> <mensaje>",
-    "help"    => "Muestra esta ayuda"
+    "chat" => "Enviar mensaje al chat: /chat <equipo> <mensaje>",
+    "help" => "Muestra esta ayuda"
   }
 
   @type parse_result :: {:ok, String.t(), [String.t()]} | {:error, String.t()}
@@ -34,7 +34,7 @@ defmodule HackathonApp.Dominios.Comando do
   # ----------------- Helpers de parseo -----------------
 
   # /help  |  help
- defp do_parse(linea) do
+  defp do_parse(linea) do
     [cmd | rest] = String.split(linea, " ", parts: 2)
     cmd = String.downcase(cmd)
 
@@ -45,6 +45,7 @@ defmodule HackathonApp.Dominios.Comando do
             case String.split(resto, " ", parts: 2) do
               [equipo, mensaje_raw] ->
                 mensaje = String.trim(mensaje_raw)
+
                 if equipo != "" and mensaje != "" do
                   {:ok, "chat", [equipo, mensaje]}
                 else
@@ -55,10 +56,11 @@ defmodule HackathonApp.Dominios.Comando do
                 {:error, "Uso: /chat <equipo> <mensaje>"}
             end
 
-          _ -> {:error, "Uso: /chat <equipo> <mensaje>"}
+          _ ->
+            {:error, "Uso: /chat <equipo> <mensaje>"}
         end
 
-      # ... handlers "help" | "teams" | "join" | "project"
+        # ... handlers "help" | "teams" | "join" | "project"
     end
   end
 

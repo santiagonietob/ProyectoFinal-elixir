@@ -12,15 +12,38 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
     IO.puts("5) Listar por estado")
     IO.puts("6) Suscribirse a avances (tiempo real)")
     IO.puts("0) Volver")
+
     case ask("> ") do
-      "1" -> registrar(); iniciar()
-      "2" -> estado(); iniciar()
-      "3" -> avance(); iniciar()
-      "4" -> por_categoria(); iniciar()
-      "5" -> por_estado(); iniciar()
-      "6" -> sub_avances(); iniciar()
-      "0" -> :ok
-      _ -> IO.puts("Opción inválida"); iniciar()
+      "1" ->
+        registrar()
+        iniciar()
+
+      "2" ->
+        estado()
+        iniciar()
+
+      "3" ->
+        avance()
+        iniciar()
+
+      "4" ->
+        por_categoria()
+        iniciar()
+
+      "5" ->
+        por_estado()
+        iniciar()
+
+      "6" ->
+        sub_avances()
+        iniciar()
+
+      "0" ->
+        :ok
+
+      _ ->
+        IO.puts("Opción inválida")
+        iniciar()
     end
   end
 
@@ -67,17 +90,27 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
         loop_listen()
     after
       60_000 ->
-        IO.puts("Sin novedades..."); loop_listen()
+        IO.puts("Sin novedades...")
+        loop_listen()
     end
   end
 
   defp listar(lista) do
     Enum.each(lista, fn p ->
-      IO.puts("##{p.id} [eq=#{p.equipo_id}] #{p.titulo} (#{p.categoria}) - #{p.estado} @ #{p.fecha_registro}")
+      IO.puts(
+        "##{p.id} [eq=#{p.equipo_id}] #{p.titulo} (#{p.categoria}) - #{p.estado} @ #{p.fecha_registro}"
+      )
     end)
   end
 
-  defp ask(p), do: (IO.write(p); IO.gets("") |> to_str())
+  defp ask(p),
+    do:
+      (
+        IO.write(p)
+        IO.gets("") |> to_str()
+      )
+
   defp ask_int(p), do: ask(p) |> String.to_integer()
-  defp to_str(nil), do: ""; defp to_str(s), do: String.trim(to_string(s))
+  defp to_str(nil), do: ""
+  defp to_str(s), do: String.trim(to_string(s))
 end
