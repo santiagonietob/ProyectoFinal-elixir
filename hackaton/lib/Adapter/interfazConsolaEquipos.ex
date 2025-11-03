@@ -58,15 +58,16 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   # -------------------------
 
   defp registrar_usuario do
-   nombre = ask("Nombre: ")
-correo = ask("Correo: ")
-rol    = ask("Rol (participante|mentor|organizador): ")
-pass   = ask("Contraseña: ")
+    nombre = ask("Nombre: ")
+    correo = ask("Correo: ")
+    rol = ask("Rol (participante|mentor|organizador): ")
+    pass = ask("Contraseña: ")
 
-case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
-  {:ok, u}   -> IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
-  {:error, m} -> IO.puts("Error: #{m}")
-end
+    case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
+      {:ok, u} -> IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
+      {:error, m} -> IO.puts("Error: #{m}")
+    end
+
     # Soporta proyecto con o sin registrar/4
     res =
       if function_exported?(UsuarioServicio, :registrar, 4) do
