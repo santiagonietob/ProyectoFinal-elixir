@@ -57,23 +57,23 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   # Acciones del menú
   # -------------------------
 
-defp registrar_usuario do
-  nombre = ask("Nombre: ") |> String.trim()
-  correo = ask("Correo: ") |> String.trim()
-  rol    = ask("Rol (participante|mentor|organizador): ") |> String.trim()
-  pass   = ask("Contraseña: ")
+  defp registrar_usuario do
+    nombre = ask("Nombre: ") |> String.trim()
+    correo = ask("Correo: ") |> String.trim()
+    rol = ask("Rol (participante|mentor|organizador): ") |> String.trim()
+    pass = ask("Contraseña: ")
 
-  case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
-    {:ok, u} ->
-      IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
-    {:error, "Ya existe un usuario con ese nombre"} ->
-      IO.puts(" El usuario '#{nombre}' ya está registrado")
-    {:error, m} ->
-      IO.puts(" Error: #{m}")
+    case HackathonApp.Service.UsuarioServicio.registrar(nombre, correo, rol, pass) do
+      {:ok, u} ->
+        IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
+
+      {:error, "Ya existe un usuario con ese nombre"} ->
+        IO.puts(" El usuario '#{nombre}' ya está registrado")
+
+      {:error, m} ->
+        IO.puts(" Error: #{m}")
+    end
   end
-end
-
-
 
   defp login do
     nombre = ask("Usuario: ")
