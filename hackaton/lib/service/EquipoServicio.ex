@@ -12,8 +12,8 @@ defmodule HackathonApp.Service.EquipoServicio do
   # Si luego usas búsqueda por usuario, descomenta:
   # alias Hackaton.Service.UsuarioServicio
 
-  @equipos_csv "priv/equipos.csv"
-  @membresias_csv "priv/membresias.csv"
+  @equipos_csv "data/equipos.csv"
+  @membresias_csv "data/membresias.csv"
 
   # ---------- EQUIPOS ----------
 

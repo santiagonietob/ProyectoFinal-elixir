@@ -1,3 +1,8 @@
 id,nombre,correo,rol,salt,hash
 1,valen,valen@gmail.com,mentor,fQXvvKVjPlFshohAgbSEVg==,d28fdfb536eb52e89804b76188d2de22b3613f5bde8af129789cccb8dcbb2a3e
 2,val,vañ@.com,mentor,oKqXyDSCx5kXfK134zWCPQ==,0e645624ebb3ae23f33bfc9e31875db14d4b93be7af96adacf05b970cca33c23
+3,santi,santi@,organizador,4cLaXqRFyo1eu0SK15SIWA==,d5c0b6d187d64367dc9c62d766a0b25da4abc639f28a13b5b442ea60aabb3afa
+4,2,santi@,participante,2fg1Phl3EV49v/45fI5y7g==,b55c6712ca89a8b1dbe012a68ee1f3eb2c8931f49447721438234f3905ba9878
+5,dani,dani@,organizador,2gLT2rm3oSmAXKf+cqC6IA==,f73b3c7689c11a7f4b63cf982011ef66faa5410d04316e120f88c2800a56f7a7
+6,ola,ola@,mentor,5s0s7LQC7xY0RdXHoM5VCQ==,27128c5e908f41c666c93c2210c8452a78f79ac3ebc8a74fc888c09e23c1c510
+7,loc,loc@,mentor,UGbWQ23RY6Qke/SBfTtIFA==,61dd290c38780c8917ba82d030ca31fa082716270bd512eceb12c287c2c6e0ae

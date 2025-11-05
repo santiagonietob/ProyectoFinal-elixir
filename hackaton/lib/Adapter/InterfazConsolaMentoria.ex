@@ -3,6 +3,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   alias HackathonApp.Session
 
   def iniciar do
+     HackathonApp.Guard.ensure_role!("mentor")
     IO.puts("\n=== MENÚ DE MENTORÍA ===")
 
     case Session.current() do

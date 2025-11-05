@@ -4,6 +4,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Adapter.ProyectoStream
 
   def iniciar do
+    HackathonApp.Guard.ensure_role!("participante")
     IO.puts("\n=== Proyectos ===")
     IO.puts("1) Registrar idea")
     IO.puts("2) Cambiar estado")

@@ -1,8 +1,11 @@
-# lib/service/auth_servicio.ex
 defmodule HackathonApp.Service.AuthServicio do
-  @moduledoc "Autenticación por nombre + contraseña (hash+salt)."
+  @moduledoc """
+  Servicio de autenticación por nombre + contraseña (usa hash SHA256 + salt).
+  Devuelve el mapa completo del usuario si las credenciales son válidas.
+  """
 
   alias HackathonApp.Service.UsuarioServicio
+  alias HackathonApp.Session
 
   @type login_resp :: {:ok, map()} | {:error, String.t()}
 
@@ -14,12 +17,24 @@ defmodule HackathonApp.Service.AuthServicio do
 
       %{salt: nil, hash: nil} = u ->
         if password in [nil, ""],
-          do: {:ok, u},
+          do: success(u),
           else: {:error, "Usuario sin contraseña. Pide restablecer."}
 
       %{salt: salt, hash: hash} = u ->
         calc = :crypto.hash(:sha256, salt <> password) |> Base.encode16(case: :lower)
-        if calc == hash, do: {:ok, u}, else: {:error, "Contraseña inválida"}
+
+        if calc == hash do
+          success(u)
+        else
+          {:error, "Contraseña inválida"}
+        end
     end
+  end
+
+  # ---- Helper privado ----
+  defp success(u) do
+    # Guardar la sesión activa para todo el sistema
+    Session.start(%{id: u.id, nombre: u.nombre, rol: u.rol})
+    {:ok, u}
   end
 end
