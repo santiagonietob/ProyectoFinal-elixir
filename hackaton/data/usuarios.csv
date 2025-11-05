@@ -1,6 +1,3 @@
-id,nombre,correo,rol
-1,pedro,pedro@hfb.com,participante
-2,Michael,MichaelMurillor@gmail.com,participante
-3,Juan,Juanito@gmail.com,participante
-4,Santiago,santiago@gmail.com,mentor,ex1u8MlQxFD17/oqE2s4yw==,ca3403d51e23a8c610b77adb19f9337b5d24e501ec8d0931011f32f50251c8c3
-5,valen,valen@11.com,organanizador,RIvcKZOPBlVQCJtFyQwXFQ==,4db6593148bd93e7428099cc295eb1c0dca970e336d42c6648132d12dd21ed0a
+id,nombre,correo,rol,salt,hash
+1,valen,valen@gmail.com,mentor,fQXvvKVjPlFshohAgbSEVg==,d28fdfb536eb52e89804b76188d2de22b3613f5bde8af129789cccb8dcbb2a3e
+2,val,vañ@.com,mentor,oKqXyDSCx5kXfK134zWCPQ==,0e645624ebb3ae23f33bfc9e31875db14d4b93be7af96adacf05b970cca33c23
