@@ -17,7 +17,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     case IO.gets("> ") |> to_str() do
       "1" -> login()
       "2" -> registrar_y_login()
-      "0" -> IO.puts("Hasta pronto!")
+      "0" -> IO.puts("Hasta pronto! ")
       _   -> IO.puts("Opción inválida"); iniciar()
     end
   end
