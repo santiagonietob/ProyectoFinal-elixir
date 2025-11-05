@@ -75,10 +75,18 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   defp ruteo_por_rol("mentor"), do: InterfazConsolaMentoria.iniciar()
   defp ruteo_por_rol("participante"), do: InterfazConsolaProyectos.iniciar()
 
-  defp ruteo_por_rol(_otro) do
-    IO.puts("Rol desconocido")
-    iniciar()
-  end
+  # En InterfazConsolaLogin.ex
+
+defp ruteo_por_rol(_otro) do
+  IO.puts("Rol desconocido")
+  iniciar()
+end
+
+defp ask(p) do
+  IO.write(p)
+  IO.gets("") |> to_str()
+end
+
 
   # ---------- Sesión mínima ----------
   defp start_session(%{id: id, nombre: n, rol: r}),
