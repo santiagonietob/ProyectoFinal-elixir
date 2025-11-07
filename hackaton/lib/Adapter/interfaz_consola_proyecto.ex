@@ -1,7 +1,7 @@
 defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   @moduledoc "Menú mínimo para registrar proyecto, avances y consultas."
   alias HackathonApp.Service.ProyectoServicio
-  alias HackathonApp.Adapter.ProyectoStream
+  
 
   def iniciar do
     HackathonApp.Guard.ensure_role!("participante")

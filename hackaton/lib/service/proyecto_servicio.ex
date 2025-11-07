@@ -38,6 +38,7 @@ defmodule HackathonApp.Service.ProyectoServicio do
      }}
   end
 
+  # 🔧 CORRECCIÓN DE SPEC (este es tu listar/0 actual)
   @spec listar() :: [Proyecto.t()]
   def listar do
     CSV.leer(@ruta_proy)
@@ -51,6 +52,15 @@ defmodule HackathonApp.Service.ProyectoServicio do
         fecha_registro: f
       }
     end)
+  end
+
+  @spec listar_proyectos() :: {:ok, [Proyecto.t()]} | {:error, String.t()}
+  def listar_proyectos do
+    try do
+      {:ok, listar()}
+    rescue
+      e -> {:error, "No se pudieron leer los proyectos: #{Exception.message(e)}"}
+    end
   end
 
   @spec buscar_por_equipo(String.t()) :: Proyecto.t() | nil
@@ -98,10 +108,7 @@ defmodule HackathonApp.Service.ProyectoServicio do
         ])
 
       avance = %Avance{id: id, proyecto_id: proyecto_id, contenido: contenido, fecha_iso: fecha}
-
-      # Notificación en tiempo real (IPC nodos)
       AvancesCliente.publicar_avance(avance)
-
       {:ok, avance}
     else
       {:error, "Proyecto no existe"}
@@ -123,14 +130,11 @@ defmodule HackathonApp.Service.ProyectoServicio do
   end
 
   @spec filtrar_por_categoria(String.t()) :: [Proyecto.t()]
-  def filtrar_por_categoria(cat) do
-    listar() |> Enum.filter(&(&1.categoria == String.trim(cat)))
-  end
+  def filtrar_por_categoria(cat), do: listar() |> Enum.filter(&(&1.categoria == String.trim(cat)))
 
   @spec filtrar_por_estado(String.t()) :: [Proyecto.t()]
-  def filtrar_por_estado(est) when est in ["idea", "en_progreso", "entregado"] do
-    listar() |> Enum.filter(&(&1.estado == est))
-  end
+  def filtrar_por_estado(est) when est in ["idea", "en_progreso", "entregado"],
+    do: listar() |> Enum.filter(&(&1.estado == est))
 
   def filtrar_por_estado(_), do: []
 
@@ -153,9 +157,8 @@ defmodule HackathonApp.Service.ProyectoServicio do
     CSV.reescribir(@ruta_proy, filas)
   end
 
-  defp reemplazar(lista, %Proyecto{id: id} = nuevo) do
-    Enum.map(lista, fn p -> if p.id == id, do: nuevo, else: p end)
-  end
+  defp reemplazar(lista, %Proyecto{id: id} = nuevo),
+    do: Enum.map(lista, fn p -> if p.id == id, do: nuevo, else: p end)
 
   defp proyecto?(id), do: Enum.any?(listar(), &(&1.id == id))
 
