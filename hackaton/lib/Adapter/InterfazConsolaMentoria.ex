@@ -213,3 +213,4 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   defp to_str(nil), do: ""
   defp to_str(s),   do: s |> to_string() |> String.trim()
 end
+#NO ME SALEN LOS COMITS NI SALGO COMO COLABORADORA
