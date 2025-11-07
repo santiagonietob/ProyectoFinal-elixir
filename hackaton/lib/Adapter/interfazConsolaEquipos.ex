@@ -21,14 +21,40 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
     IO.puts("0) Salir")
 
     case IO.gets("> ") |> to_str() do
-      "1" -> ensure_organizer!(); registrar_usuario(); menu()
-      "2" -> ensure_organizer!(); crear_equipo(); menu()
-      "3" -> ensure_organizer!(); unir_usuario(); menu()
-      "4" -> ensure_organizer!(); listar_equipos(); menu()
-      "5" -> ensure_organizer!(); listar_miembros(); menu()
-      "6" -> InterfazConsola.iniciar()
-      "0" -> IO.puts("Hasta luego.")
-      _   -> IO.puts("Opción inválida"); menu()
+      "1" ->
+        ensure_organizer!()
+        registrar_usuario()
+        menu()
+
+      "2" ->
+        ensure_organizer!()
+        crear_equipo()
+        menu()
+
+      "3" ->
+        ensure_organizer!()
+        unir_usuario()
+        menu()
+
+      "4" ->
+        ensure_organizer!()
+        listar_equipos()
+        menu()
+
+      "5" ->
+        ensure_organizer!()
+        listar_miembros()
+        menu()
+
+      "6" ->
+        InterfazConsola.iniciar()
+
+      "0" ->
+        IO.puts("Hasta luego.")
+
+      _ ->
+        IO.puts("Opción inválida")
+        menu()
     end
   end
 
@@ -54,8 +80,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   defp registrar_usuario do
     nombre = ask("Nombre: ") |> String.trim()
     correo = ask("Correo: ") |> String.trim()
-    rol    = ask("Rol (participante|mentor|organizador): ") |> String.trim()
-    pass   = ask("Contraseña: ")
+    rol = ask("Rol (participante|mentor|organizador): ") |> String.trim()
+    pass = ask("Contraseña: ")
 
     case UsuarioServicio.registrar(nombre, correo, rol, pass) do
       {:ok, u} ->
@@ -71,26 +97,26 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
   defp crear_equipo do
     nombre = ask("Nombre del equipo: ")
-    desc   = ask("Descripción: ")
-    tema   = ask("Tema/Afinidad: ")
+    desc = ask("Descripción: ")
+    tema = ask("Tema/Afinidad: ")
 
     case EquipoServicio.crear_equipo(nombre, desc, tema) do
-      {:ok, e}   -> IO.puts("Creado equipo #{e.nombre} (tema=#{e.tema})")
+      {:ok, e} -> IO.puts("Creado equipo #{e.nombre} (tema=#{e.tema})")
       {:error, m} -> IO.puts("Error: #{m}")
     end
   end
 
   defp unir_usuario do
     nombre_part = ask("Nombre del participante: ")
-    nombre_eq   = ask("Nombre del equipo: ")
+    nombre_eq = ask("Nombre del equipo: ")
 
     with %{id: uid} <- UsuarioServicio.buscar_por_nombre(nombre_part) || %{},
-         {:ok, _}   <- EquipoServicio.unirse_a_equipo(nombre_eq, uid) do
+         {:ok, _} <- EquipoServicio.unirse_a_equipo(nombre_eq, uid) do
       IO.puts("Se unió #{nombre_part} a #{nombre_eq}")
     else
-      nil         -> IO.puts("Usuario no encontrado")
+      nil -> IO.puts("Usuario no encontrado")
       {:error, m} -> IO.puts("Error: #{m}")
-      _           -> IO.puts("Operación inválida")
+      _ -> IO.puts("Operación inválida")
     end
   end
 
@@ -113,5 +139,5 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   end
 
   defp to_str(nil), do: ""
-  defp to_str(s),   do: String.trim(to_string(s))
+  defp to_str(s), do: String.trim(to_string(s))
 end
