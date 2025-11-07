@@ -15,6 +15,7 @@ defmodule HackathonApp.Service.EquipoServicio do
   @equipos_csv "data/equipos.csv"
   @membresias_csv "data/membresias.csv"
 
+
   # ---------- EQUIPOS ----------
 
   @doc "Crea un equipo nuevo (evita duplicado por nombre)"
@@ -135,21 +136,47 @@ defmodule HackathonApp.Service.EquipoServicio do
     end
   end
 
-  # ---------- Atajo por afinidad (opcional) ----------
-  # Descomenta si ya tienes UsuarioServicio.buscar_por_nombre/1
-  # @doc "Crea equipo 'Equipo <tema>' y añade por nombres de usuario (si existen)"
-  # @spec crear_equipo_por_afinidad([String.t()], String.t(), String.t()) ::
-  #       {:ok, Equipo.t()} | {:error, String.t()}
-  # def crear_equipo_por_afinidad(nombres, tema, descripcion \\ "") do
-  #   nombre_equipo = "Equipo #{tema}"
-  #   with {:ok, equipo} <- crear_equipo(nombre_equipo, descripcion, tema) do
-  #     Enum.each(nombres, fn nombre ->
-  #       case UsuarioServicio.buscar_por_nombre(nombre) do
-  #         nil -> :noop
-  #         u   -> _ = unirse_a_equipo(nombre_equipo, u.id, "miembro")
-  #       end
-  #     end)
-  #     {:ok, equipo}
-  #   end
-  # end
+   @doc "Lista todos los equipos (sin filtrar)."
+  @spec listar_equipos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
+  def listar_equipos do
+    try do
+      filas = CSV.leer(@equipos_csv)
+
+      equipos =
+        Enum.map(filas, fn
+          # Espera columnas: id,nombre,descripcion,tema,activo
+          [id, nombre, descripcion, tema, activo_str] ->
+            %Equipo{
+              id: id,
+              nombre: nombre,
+              descripcion: descripcion,
+              tema: tema,
+              activo: String.downcase(to_string(activo_str)) in ["true", "1", "sí", "si", "yes"]
+            }
+
+          # Si vienen menos columnas (defensivo)
+          [id, nombre, descripcion, tema] ->
+            %Equipo{ id: id, nombre: nombre, descripcion: descripcion, tema: tema, activo: true }
+
+          otra ->
+            # Línea malformada: la ignoramos (o podrías loguearla)
+            _ = otra
+            nil
+        end)
+        |> Enum.reject(&is_nil/1)
+
+      {:ok, equipos}
+    rescue
+      e -> {:error, "No se pudieron leer los equipos: #{Exception.message(e)}"}
+    end
+  end
+
+  @doc "Lista sólo los equipos activos (activo=true)."
+  @spec listar_equipos_activos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
+  def listar_equipos_activos do
+    with {:ok, equipos} <- listar_equipos() do
+      {:ok, Enum.filter(equipos, & &1.activo)}
+    end
+  end
+
 end
