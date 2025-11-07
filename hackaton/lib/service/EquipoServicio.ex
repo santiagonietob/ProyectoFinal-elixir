@@ -18,7 +18,6 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   # ---------- EQUIPOS ----------
 
-  @doc "Crea un equipo nuevo (evita duplicado por nombre)"
   @spec crear_equipo(String.t(), String.t(), String.t(), boolean()) ::
           {:ok, Equipo.t()} | {:error, String.t()}
   def crear_equipo(nombre, descripcion, tema, activo \\ true) do
