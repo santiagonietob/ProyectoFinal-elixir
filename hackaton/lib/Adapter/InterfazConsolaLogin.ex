@@ -3,9 +3,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   alias HackathonApp.Service.{AuthServicio, UsuarioServicio}
 
   alias HackathonApp.Adapter.{
-    InterfazConsola,            # menú general (organizador)
-    InterfazConsolaProyectos,   # participante
-    InterfazConsolaMentoria     # mentor
+    # menú general (organizador)
+    InterfazConsola,
+    # participante
+    InterfazConsolaProyectos,
+    # mentor
+    InterfazConsolaMentoria
   }
 
   def iniciar do
@@ -15,45 +18,58 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     IO.puts("0) Salir")
 
     case IO.gets("> ") |> to_str() do
-      "1" -> login()
-      "2" -> registrar_y_login()
-      "0" -> IO.puts("Hasta pronto!")
-      _   -> IO.puts("Opción inválida"); iniciar()
+      "1" ->
+        login()
+
+      "2" ->
+        registrar_y_login()
+
+      "0" ->
+        IO.puts("Hasta pronto!")
+
+      _ ->
+        IO.puts("Opción inválida")
+        iniciar()
     end
   end
 
   defp login do
-  nombre = ask("Usuario: ")
-  pass   = ask("Contraseña: ")
+    nombre = ask("Usuario: ")
+    pass = ask("Contraseña: ")
 
-  case AuthServicio.login(nombre, pass) do
-    {:ok, u} ->
-      IO.puts("Bienvenido #{u.nombre} (rol=#{u.rol})")
-      ruteo_por_rol(u.rol)
+    case AuthServicio.login(nombre, pass) do
+      {:ok, u} ->
+        IO.puts("Bienvenido #{u.nombre} (rol=#{u.rol})")
+        ruteo_por_rol(u.rol)
 
-    {:error, m} ->
-      IO.puts("Login fallido: " <> m)
-      iniciar()
+      {:error, m} ->
+        IO.puts("Login fallido: " <> m)
+        iniciar()
+    end
   end
-end
-
 
   defp registrar_y_login do
     nombre = ask("Nombre: ")
     correo = ask("Correo: ")
-    rol    = ask("Rol (participante|mentor|organizador): ")
-    pass   = ask("Contraseña: ")
+    rol = ask("Rol (participante|mentor|organizador): ")
+    pass = ask("Contraseña: ")
 
     case UsuarioServicio.registrar(nombre, correo, rol, pass) do
-      {:ok, _u} -> IO.puts("Registro exitoso. Ahora inicia sesión."); login()
-      {:error, m} -> IO.puts("Error: " <> m); iniciar()
+      {:ok, _u} ->
+        IO.puts("Registro exitoso. Ahora inicia sesión.")
+        login()
+
+      {:error, m} ->
+        IO.puts("Error: " <> m)
+        iniciar()
     end
   end
 
   # ---------- Ruteo por rol ----------
-  defp ruteo_por_rol("organizador"),  do: InterfazConsola.iniciar()
-  defp ruteo_por_rol("mentor"),        do: InterfazConsolaMentoria.iniciar()
-  defp ruteo_por_rol("participante"),  do: InterfazConsolaProyectos.iniciar()
+  defp ruteo_por_rol("organizador"), do: InterfazConsola.iniciar()
+  defp ruteo_por_rol("mentor"), do: InterfazConsolaMentoria.iniciar()
+  defp ruteo_por_rol("participante"), do: InterfazConsolaProyectos.iniciar()
+
   defp ruteo_por_rol(_otro) do
     IO.puts("Rol desconocido")
     iniciar()
@@ -70,5 +86,5 @@ end
   end
 
   defp to_str(nil), do: ""
-  defp to_str(s),   do: s |> to_string() |> String.trim()
+  defp to_str(s), do: s |> to_string() |> String.trim()
 end
