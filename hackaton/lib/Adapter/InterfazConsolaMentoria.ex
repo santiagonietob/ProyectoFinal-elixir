@@ -12,7 +12,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     end
   end
 
-  # ====== Menu Mentoria ======
+  # ====== Menú Mentoría ======
   defp loop(u) do
     IO.puts("\n=== MENÚ DE MENTORÍA ===")
     IO.puts("Mentor: #{u.nombre} (#{u.rol})")
@@ -89,32 +89,41 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   defp ver_proyectos(u) do
     if Autorizacion.can?(u.rol, :ver_proyecto) do
-      case ProyectoServicio.listar_proyectos() do
+      # Soporta ambas firmas: listar_proyectos/0 -> {:ok, lista}  o  listar/0 -> lista
+      case safe_listar_proyectos() do
         {:ok, []} ->
           IO.puts("No hay proyectos registrados.")
 
         {:ok, proyectos} ->
           IO.puts("\n--- Proyectos ---")
+          Enum.each(proyectos, &print_proyecto/1)
 
-          Enum.each(proyectos, fn p ->
-            id = Map.get(p, :id, "N/A")
-            tit = Map.get(p, :titulo, "sin_titulo")
-            eq = Map.get(p, :equipo_id, "N/A")
-            est = Map.get(p, :estado, "N/A")
-            cat = Map.get(p, :categoria, "N/A")
-            fecha = Map.get(p, :fecha_registro, "")
+        lista when is_list(lista) and lista == [] ->
+          IO.puts("No hay proyectos registrados.")
 
-            IO.puts(
-              "• [#{id}] #{tit} — equipo #{eq} — estado #{est} — categoría #{cat} — creado #{fecha}"
-            )
-          end)
+        lista when is_list(lista) ->
+          IO.puts("\n--- Proyectos ---")
+          Enum.each(lista, &print_proyecto/1)
 
         {:error, m} ->
-          IO.puts("Error al listar proyectos: " <> m)
+          IO.puts("Error al listar proyectos: " <> to_string(m))
       end
     else
       IO.puts("Acceso denegado (solo lectura para mentor).")
     end
+  end
+
+  defp print_proyecto(p) do
+    id = Map.get(p, :id, "N/A")
+    tit = Map.get(p, :titulo, "sin_titulo")
+    eq = Map.get(p, :equipo_id, "N/A")
+    est = Map.get(p, :estado, "N/A")
+    cat = Map.get(p, :categoria, "N/A")
+    fecha = Map.get(p, :fecha_registro, "")
+
+    IO.puts(
+      "• [#{id}] #{tit} — equipo #{eq} — estado #{est} — categoría #{cat} — creado #{fecha}"
+    )
   end
 
   # 3) Dar mentoría (comentario dirigido al equipo)
@@ -125,10 +134,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
       with {:ok, equipo_id} <- resolve_equipo_id(nombre_eq) do
         fecha = DateTime.utc_now() |> DateTime.to_iso8601()
-        fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         # mensajes.csv: id,equipo_id,usuario_id,texto,fecha_iso
+        fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts("✅ Comentario registrado.")
+        IO.puts("Comentario registrado.")
       else
         {:error, m} -> IO.puts(m)
       end
@@ -140,11 +149,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   # 4) Ver avances recientes (últimos 10 de todos los proyectos)
   defp ver_avances(u) do
     if Autorizacion.can?(u.rol, :ver_proyecto) do
-      # id,proyecto_id,contenido,fecha_iso
+      # avances.csv (servicio actual): id,proyecto_id,contenido,fecha_iso
       avances =
         CSV.leer("data/avances.csv")
         |> Enum.map(fn
-          [id, p, c, f] -> %{id: id, proyecto_id: p, contenido: c, fecha: f}
+          [id, p, c, f] -> %{id: id, proyecto_id: p, contenido: c, fecha_iso: f}
           _ -> nil
         end)
         |> Enum.reject(&is_nil/1)
@@ -156,7 +165,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         IO.puts("\n--- Avances recientes ---")
 
         Enum.each(avances, fn a ->
-          IO.puts("[#{a.fecha}] (proy #{a.proyecto_id}) #{a.contenido}")
+          IO.puts("[#{a.fecha_iso}] (proy #{a.proyecto_id}) #{a.contenido}")
         end)
       end
     else
@@ -191,7 +200,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
       nombre_eq = prompt("Equipo (por nombre): ")
 
       with {:ok, equipo_id} <- resolve_equipo_id(nombre_eq) do
-        # id,equipo_id,usuario_id,texto,fecha_iso
+        # mensajes.csv: id,equipo_id,usuario_id,texto,fecha_iso
         mensajes =
           CSV.leer("data/mensajes.csv")
           |> Enum.filter(fn
@@ -230,7 +239,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         fecha = DateTime.utc_now() |> DateTime.to_iso8601()
         fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts("✅ Mensaje enviado a #{String.trim(nombre_eq)}.")
+        IO.puts("Mensaje enviado a #{String.trim(nombre_eq)}.")
       else
         {:error, m} -> IO.puts(m)
       end
@@ -244,6 +253,20 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     case EquipoServicio.buscar_equipo_por_nombre(nombre_eq) do
       nil -> {:error, "No existe el equipo #{String.trim(nombre_eq)}"}
       %{id: equipo_id} -> {:ok, equipo_id}
+    end
+  end
+
+  defp safe_listar_proyectos do
+    # Intenta wrapper {:ok, lista}; si no existe, cae a listar/0 (lista)
+    try do
+      ProyectoServicio.listar_proyectos()
+    rescue
+      _ ->
+        try do
+          ProyectoServicio.listar()
+        rescue
+          e -> {:error, e}
+        end
     end
   end
 
@@ -268,5 +291,3 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   defp to_str(nil), do: ""
   defp to_str(s), do: s |> to_string() |> String.trim()
 end
-
-# NO ME SALEN LOS COMITS NI SALGO COMO COLABORADORA
