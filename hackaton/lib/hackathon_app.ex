@@ -9,7 +9,8 @@ defmodule HackathonApp do
     ui_child = %{
       id: :ui_login,
       start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
-      restart: :temporary,   # <-- clave: NO reiniciar la UI
+      # <-- clave: NO reiniciar la UI
+      restart: :temporary,
       shutdown: 5000,
       type: :worker
     }

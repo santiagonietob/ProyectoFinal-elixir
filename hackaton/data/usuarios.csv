@@ -6,8 +6,6 @@ id,nombre,correo,rol,salt,hash
 5,dani,dani@,organizador,2gLT2rm3oSmAXKf+cqC6IA==,f73b3c7689c11a7f4b63cf982011ef66faa5410d04316e120f88c2800a56f7a7
 6,ola,ola@,mentor,5s0s7LQC7xY0RdXHoM5VCQ==,27128c5e908f41c666c93c2210c8452a78f79ac3ebc8a74fc888c09e23c1c510
 7,loc,loc@,mentor,UGbWQ23RY6Qke/SBfTtIFA==,61dd290c38780c8917ba82d030ca31fa082716270bd512eceb12c287c2c6e0ae
-<<<<<<< HEAD
 8,yasmin,yasmin@jdnh.com,organizador,RhXlJTr67TrarbqJl7UKvA==,615d5499b75986f2b56af64a5b0aef691243f3893b1e72b2fe51035e1e291b06
-=======
-8,Yeimy Rodriguez,ydrodrigueza10a@gmail.com,mentor,4HoxpXFQpQUmrR1xF5+laQ==,9afe035d67cd9e1c063fb0c8e015d1ba4634e10bc14709273b9eb389359bc633
->>>>>>> 31bbc9a002b945f13722faab0376910db57670d6
+9,Yei,yd@gmail.com,organizador,ObZ6dyosz8EQ0BX38Qe53Q==,1c4a8c73440d91085baf8c451ffad3331086a2c996afd9e6ce287cda3be6eac5
+10,Johana,Joha@gmail.com,participante,q2M9AHIAUzNuU/Wlx7fhrA==,a43151af0665d0541c07a916c8bec7872819c2df6cdc7bcda19ef4dd6282265f

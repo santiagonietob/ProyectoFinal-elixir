@@ -71,7 +71,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
         else
           IO.puts("Acceso denegado. Esta sección es solo para organizador.")
           InterfazConsola.iniciar()
-          raise :forbidden
+          raise RuntimeError, message: "Acceso denegado: se requiere rol organizador"
         end
     end
   end
