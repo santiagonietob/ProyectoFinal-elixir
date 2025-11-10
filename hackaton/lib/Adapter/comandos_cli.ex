@@ -48,18 +48,18 @@ defmodule HackathonApp.Adapter.ComandosCLI do
       /project <equipo>       -> Ver proyecto de un equipo
       /join <equipo>          -> Unirse a un equipo (solo participantes)
       /chat <equipo>          -> Entrar al canal del equipo (solo participantes, 15s)
-      /back | /salir          -> Volver al menú anterior
-      /quit                   -> Cerrar aplicación
+      /back | /volver          -> Volver al menú anterior
+      /exit                   -> Cerrar aplicación
     """)
     :cont
   end
 
-  # salir del modo comandos (volver al menú que te llamó)
+  # salir del modo comandos (volver al menú que se llamó)
   defp dispatch("/back"),  do: :back
-  defp dispatch("/salir"), do: :back
+  defp dispatch("/volver"), do: :back
 
   # salir de toda la app (opcional)
-  defp dispatch("/quit") do
+  defp dispatch("/exit") do
     IO.puts("Cerrando aplicación...")
     System.halt(0)
   end
