@@ -14,8 +14,6 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   @equipos_csv "data/equipos.csv"
   @membresias_csv "data/membresias.csv"
-  
-
 
   # ---------- EQUIPOS ----------
 
@@ -136,7 +134,7 @@ defmodule HackathonApp.Service.EquipoServicio do
     end
   end
 
-   @doc "Lista todos los equipos (sin filtrar)."
+  @doc "Lista todos los equipos (sin filtrar)."
   @spec listar_equipos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
   def listar_equipos do
     try do
@@ -156,7 +154,7 @@ defmodule HackathonApp.Service.EquipoServicio do
 
           # Si vienen menos columnas (defensivo)
           [id, nombre, descripcion, tema] ->
-            %Equipo{ id: id, nombre: nombre, descripcion: descripcion, tema: tema, activo: true }
+            %Equipo{id: id, nombre: nombre, descripcion: descripcion, tema: tema, activo: true}
 
           otra ->
             # Línea malformada: la ignoramos (o podrías loguearla)
@@ -171,6 +169,25 @@ defmodule HackathonApp.Service.EquipoServicio do
     end
   end
 
+  @doc "Busca el equipo al que pertenece un usuario (por su id)."
+  @spec buscar_equipo_por_usuario(integer()) :: Equipo.t() | nil
+  def buscar_equipo_por_usuario(usuario_id) do
+    miembros = CSV.leer(@membresias_csv)
+
+    case Enum.find(miembros, fn
+           [_id, eq_id, u_id | _] -> u_id == Integer.to_string(usuario_id)
+           _ -> false
+         end) do
+      [_, eq_id, _ | _] ->
+        listar_equipos()
+        |> elem(1)
+        |> Enum.find(&(&1.id == String.to_integer(eq_id)))
+
+      _ ->
+        nil
+    end
+  end
+
   @doc "Lista sólo los equipos activos (activo=true)."
   @spec listar_equipos_activos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
   def listar_equipos_activos do
@@ -178,5 +195,4 @@ defmodule HackathonApp.Service.EquipoServicio do
       {:ok, Enum.filter(equipos, & &1.activo)}
     end
   end
-
 end

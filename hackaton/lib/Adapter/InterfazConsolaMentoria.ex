@@ -90,7 +90,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         fila  = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         # mensajes.csv: id,equipo_id,usuario_id,texto,fecha_iso
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts("✅ Comentario registrado.")
+        IO.puts("Comentario registrado.")
       else
         {:error, m} -> IO.puts(m)
       end

@@ -12,33 +12,42 @@ defmodule HackathonApp.Service.ProyectoServicio do
 
   # ---------- Crear / leer ----------
 
-  @spec crear(integer(), String.t(), String.t()) :: {:ok, Proyecto.t()} | {:error, String.t()}
-  def crear(equipo_id, titulo, categoria) do
-    id = siguiente_id_proyecto()
-    ahora = DateTime.utc_now() |> DateTime.to_iso8601()
+ @spec crear(integer(), String.t(), String.t()) :: {:ok, Proyecto.t()} | {:error, String.t()}
+def crear(equipo_id, titulo, categoria) do
+  id = siguiente_id_proyecto()
+  ahora = DateTime.utc_now() |> DateTime.to_iso8601()
 
-    :ok =
-      CSV.agregar(@ruta_proy, [
-        Integer.to_string(id),
-        Integer.to_string(equipo_id),
-        limpiar(titulo),
-        limpiar(categoria),
-        "idea",
-        ahora
-      ])
+  :ok =
+    CSV.agregar(@ruta_proy, [
+      Integer.to_string(id),
+      Integer.to_string(equipo_id),
+      limpiar(titulo),
+      limpiar(categoria),
+      "idea",
+      ahora
+    ])
 
-    {:ok,
-     %Proyecto{
-       id: id,
-       equipo_id: equipo_id,
-       titulo: titulo,
-       categoria: categoria,
-       estado: "idea",
-       fecha_registro: ahora
-     }}
-  end
+  proyecto = %Proyecto{
+    id: id,
+    equipo_id: equipo_id,
+    titulo: titulo,
+    categoria: categoria,
+    estado: "idea",
+    fecha_registro: ahora
+  }
 
-  # 🔧 CORRECCIÓN DE SPEC (este es tu listar/0 actual)
+  IO.puts("\nProyecto registrado correctamente.")
+  IO.puts("ID: #{proyecto.id}")
+  IO.puts("Equipo ID: #{proyecto.equipo_id}")
+  IO.puts("Título: #{proyecto.titulo}")
+  IO.puts("Categoría: #{proyecto.categoria}")
+  IO.puts("Estado inicial: #{proyecto.estado}")
+  IO.puts("Fecha de registro: #{proyecto.fecha_registro}\n")
+
+  {:ok, proyecto}
+end
+
+  # CORRECCIÓN DE SPEC (este es tu listar/0 actual)
   @spec listar() :: [Proyecto.t()]
   def listar do
     CSV.leer(@ruta_proy)
