@@ -13,8 +13,11 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   @equipos_csv "data/equipos.csv"
   @membresias_csv "data/membresias.csv"
+<<<<<<< HEAD
+=======
 
   @roles_validos ~w(miembro lider)
+>>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 
   # -------------------------
   # Crear / Listar / Buscar
@@ -248,4 +251,69 @@ end
       xs -> Enum.max_by(xs, & &1.id).id + 1
     end
   end
+<<<<<<< HEAD
+
+  @doc "Lista todos los equipos (sin filtrar)."
+  @spec listar_equipos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
+  def listar_equipos do
+    try do
+      filas = CSV.leer(@equipos_csv)
+
+      equipos =
+        Enum.map(filas, fn
+          # Espera columnas: id,nombre,descripcion,tema,activo
+          [id, nombre, descripcion, tema, activo_str] ->
+            %Equipo{
+              id: id,
+              nombre: nombre,
+              descripcion: descripcion,
+              tema: tema,
+              activo: String.downcase(to_string(activo_str)) in ["true", "1", "sí", "si", "yes"]
+            }
+
+          # Si vienen menos columnas (defensivo)
+          [id, nombre, descripcion, tema] ->
+            %Equipo{id: id, nombre: nombre, descripcion: descripcion, tema: tema, activo: true}
+
+          otra ->
+            # Línea malformada: la ignoramos (o podrías loguearla)
+            _ = otra
+            nil
+        end)
+        |> Enum.reject(&is_nil/1)
+
+      {:ok, equipos}
+    rescue
+      e -> {:error, "No se pudieron leer los equipos: #{Exception.message(e)}"}
+    end
+  end
+
+  @doc "Busca el equipo al que pertenece un usuario (por su id)."
+  @spec buscar_equipo_por_usuario(integer()) :: Equipo.t() | nil
+  def buscar_equipo_por_usuario(usuario_id) do
+    miembros = CSV.leer(@membresias_csv)
+
+    case Enum.find(miembros, fn
+           [_id, eq_id, u_id | _] -> u_id == Integer.to_string(usuario_id)
+           _ -> false
+         end) do
+      [_, eq_id, _ | _] ->
+        listar_equipos()
+        |> elem(1)
+        |> Enum.find(&(&1.id == String.to_integer(eq_id)))
+
+      _ ->
+        nil
+    end
+  end
+
+  @doc "Lista sólo los equipos activos (activo=true)."
+  @spec listar_equipos_activos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
+  def listar_equipos_activos do
+    with {:ok, equipos} <- listar_equipos() do
+      {:ok, Enum.filter(equipos, & &1.activo)}
+    end
+  end
+=======
+>>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 end

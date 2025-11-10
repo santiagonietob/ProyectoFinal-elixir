@@ -1,5 +1,10 @@
 id,equipo_id,titulo,categoria,estado,fecha_registro
+<<<<<<< HEAD
+1,1,Proyecto final,Universidad,idea,2025-11-08T00:08:14.548000Z
+2,2,Correcion,u,entregado,2025-11-08T00:11:45.935000Z
+=======
 1,1,Los malos,macos,en_progreso,2025-11-03T05:28:29.791000Z
 2,2,Plataforma IA,ia,idea,2025-11-09T03:54:19.562000Z
 3,2,Plataforma,ia,idea,2025-11-09T03:56:57.775000Z
 4,2,Prueba,ia,idea,2025-11-09T04:21:07.483000Z
+>>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8

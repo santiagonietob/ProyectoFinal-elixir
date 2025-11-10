@@ -1,7 +1,6 @@
 defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   @moduledoc "Menú para registrar proyectos, gestionar estados, avances y consultas."
   alias HackathonApp.Service.ProyectoServicio
-  alias HackathonApp.Adapter.AvancesCliente
 
   # ====== ENTRADA ======
   def iniciar do
@@ -52,15 +51,33 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   # ====== ACCIONES ======
   defp registrar do
-    eq = ask_int("Equipo ID: ")
-    tit = ask("Título (nombre del proyecto): ")
-    desc = ask("Descripción (opcional): ")
-    cat = ask("Categoría (web|movil|ia|datos|iot|otros): ")
+    u = HackathonApp.Session.current()
 
-    case ProyectoServicio.crear(tit, desc, cat, eq) do
-      {:ok, p} -> IO.puts("Proyecto ##{p.id} \"#{p.titulo}\" creado en equipo #{p.equipo_id}")
-      {:error, m} -> IO.puts("#{m}")
-      otro -> IO.inspect(otro, label: "Respuesta crear/4")
+    case u do
+      nil ->
+        IO.puts("No hay sesión activa. Inicia sesión primero.")
+
+      %{rol: "participante"} ->
+        tit = ask("Título del proyecto: ")
+        cat = ask("Categoría: ")
+
+        # El equipo_id se obtiene del usuario logueado (si lo tienes asociado)
+        # Si cada participante pertenece a un equipo, busca ese equipo
+        case HackathonApp.Service.EquipoServicio.buscar_equipo_por_usuario(u.id) do
+          nil ->
+            IO.puts(
+              "No se encontró un equipo asociado a tu usuario. Únete a uno antes de registrar un proyecto."
+            )
+
+          %{id: equipo_id} ->
+            case HackathonApp.Service.ProyectoServicio.crear(equipo_id, tit, cat) do
+              {:ok, p} -> print_proyecto_creado(p)
+              {:error, m} -> IO.puts("Error: " <> m)
+            end
+        end
+
+      _ ->
+        IO.puts("Solo los participantes pueden registrar proyectos.")
     end
   end
 
@@ -187,6 +204,26 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   defp ask(p) do
     IO.write(p)
     IO.gets("") |> to_str()
+  end
+
+  defp print_proyecto_creado(p) do
+    IO.puts("\nProyecto registrado correctamente.")
+    IO.puts("ID: #{p.id}")
+    IO.puts("Equipo ID: #{p.equipo_id}")
+    IO.puts("Título: #{p.titulo}")
+    IO.puts("Categoría: #{p.categoria}")
+    IO.puts("Estado inicial: #{p.estado}")
+    IO.puts("Fecha de registro: #{p.fecha_registro}\n")
+  end
+
+  defp print_proyecto(titulo, p) do
+    IO.puts("\n#{titulo}.")
+    IO.puts("ID: #{p.id}")
+    IO.puts("Equipo ID: #{p.equipo_id}")
+    IO.puts("Título: #{p.titulo}")
+    IO.puts("Categoría: #{p.categoria}")
+    IO.puts("Estado: #{p.estado}")
+    IO.puts("Fecha de registro: #{p.fecha_registro}\n")
   end
 
   defp ask_int(p), do: ask(p) |> String.to_integer()
