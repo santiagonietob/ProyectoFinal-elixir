@@ -29,22 +29,22 @@ defmodule HackathonApp.Service.Autorizacion do
   # =====================================================
   #  MENTOR  →  Puede ver proyectos, equipos, mensajes y dar mentoría
   # =====================================================
-  def can?("mentor", :ver_proyecto),    do: true
-  def can?("mentor", :ver_equipos),     do: true
-  def can?("mentor", :dar_mentoria),    do: true
-  def can?("mentor", :enviar_mensaje),  do: true
-  def can?("mentor", _),                do: false
+  def can?("mentor", :ver_proyecto), do: true
+  def can?("mentor", :ver_equipos), do: true
+  def can?("mentor", :dar_mentoria), do: true
+  def can?("mentor", :enviar_mensaje), do: true
+  def can?("mentor", _), do: false
 
   # =====================================================
   #  PARTICIPANTE  →  Puede gestionar su proyecto y comunicarse
   # =====================================================
-  def can?("participante", :registrar_proyecto),     do: true
-  def can?("participante", :cambiar_estado_proyecto),do: true
-  def can?("participante", :agregar_avance),         do: true
-  def can?("participante", :ver_proyecto),           do: true
-  def can?("participante", :ver_equipos),            do: true
-  def can?("participante", :enviar_mensaje),         do: true
-  def can?("participante", _),                       do: false
+  def can?("participante", :registrar_proyecto), do: true
+  def can?("participante", :cambiar_estado_proyecto), do: true
+  def can?("participante", :agregar_avance), do: true
+  def can?("participante", :ver_proyecto), do: true
+  def can?("participante", :ver_equipos), do: true
+  def can?("participante", :enviar_mensaje), do: true
+  def can?("participante", _), do: false
 
   # =====================================================
   #  Cualquier otro rol o desconocido → sin permisos

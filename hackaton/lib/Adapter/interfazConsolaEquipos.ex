@@ -38,7 +38,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
       "4" ->
         ensure_organizer!()
-        listar_equipos()
+        listar_activos_con_ids()
         menu()
 
       "5" ->
@@ -63,7 +63,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
     case Session.current() do
       nil ->
         IO.puts("No hay sesión. Inicia sesión primero.")
-        raise :no_session
+        raise RuntimeError, message: "Sin sesión activa"
 
       %{rol: rol} ->
         if Autorizacion.can?(rol, :crear_equipo) do
@@ -71,7 +71,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
         else
           IO.puts("Acceso denegado. Esta sección es solo para organizador.")
           InterfazConsola.iniciar()
-          raise :forbidden
+          raise RuntimeError, message: "Acceso denegado: se requiere rol organizador"
         end
     end
   end
@@ -101,7 +101,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
     tema = ask("Tema/Afinidad: ")
 
     case EquipoServicio.crear_equipo(nombre, desc, tema) do
-      {:ok, e} -> IO.puts("Creado equipo #{e.nombre} (tema=#{e.tema})")
+      {:ok, e} -> IO.puts("Creado equipo #{e.nombre} (id=#{e.id}, tema=#{e.tema})")
       {:error, m} -> IO.puts("Error: #{m}")
     end
   end
@@ -115,21 +115,44 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
       IO.puts("Se unió #{nombre_part} a #{nombre_eq}")
     else
       nil -> IO.puts("Usuario no encontrado")
-      {:error, m} -> IO.puts("Error: #{m}")
+      {:error, msg} -> IO.puts("Error: #{msg}")
       _ -> IO.puts("Operación inválida")
     end
   end
 
-  defp listar_equipos do
-    EquipoServicio.listar_equipos_con_conteo()
-    |> Enum.each(fn {n, c} -> IO.puts("- #{n} (#{c} miembros)") end)
+  # ======== Listados ========
+  # Nueva versión: muestra nombre + id + conteo de miembros
+  defp listar_activos_con_ids do
+    equipos_activos =
+      EquipoServicio.listar_todos()
+      |> Enum.filter(& &1.activo)
+
+    if equipos_activos == [] do
+      IO.puts("No hay equipos activos.")
+    else
+      IO.puts("\n--- Equipos activos ---")
+
+      Enum.each(equipos_activos, fn e ->
+        miembros = EquipoServicio.listar_miembros_por_id(e.id) |> length()
+
+        IO.puts(
+          "• #{e.nombre} (id=#{e.id}, #{miembros} #{plural(miembros, "miembro", "miembros")})"
+        )
+      end)
+    end
   end
 
   defp listar_miembros do
-    eq = ask("Equipo: ")
+    eq = ask("Equipo (por nombre): ")
+    miembros = EquipoServicio.listar_miembros(eq)
 
-    EquipoServicio.listar_miembros(eq)
-    |> Enum.each(fn m -> IO.puts("usuario_id=#{m.usuario_id} rol=#{m.rol_en_equipo}") end)
+    if miembros == [] do
+      IO.puts("Sin miembros o equipo inexistente.")
+    else
+      Enum.each(miembros, fn m ->
+        IO.puts("usuario_id=#{m.usuario_id} rol=#{m.rol_en_equipo}")
+      end)
+    end
   end
 
   # ======== Helpers de entrada ========
@@ -140,4 +163,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
   defp to_str(nil), do: ""
   defp to_str(s), do: String.trim(to_string(s))
+
+  defp plural(1, singular, _plural), do: singular
+  defp plural(_, _singular, plural), do: plural
 end

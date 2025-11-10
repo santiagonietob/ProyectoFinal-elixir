@@ -6,14 +6,20 @@ defmodule HackathonApp do
   def start(_type, _args) do
     IO.puts("\nIniciando HackathonApp...")
 
-    ui_child = %{
-      id: :ui_login,
-      start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
-      restart: :temporary,   # <-- clave: NO reiniciar la UI
-      shutdown: 5000,
-      type: :worker
-    }
+    children = [
+      # Arranca el servidor de avances como GenServer (usa start_link/1)
+      {HackathonApp.Adapter.AvancesServidor, []},
 
-    Supervisor.start_link([ui_child], strategy: :one_for_one, name: HackathonApp.Supervisor)
+      # UI: no reiniciar la UI
+      %{
+        id: :ui_login,
+        start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
+        restart: :temporary,
+        shutdown: 5_000,
+        type: :worker
+      }
+    ]
+
+    Supervisor.start_link(children, strategy: :one_for_one, name: HackathonApp.Supervisor)
   end
 end
