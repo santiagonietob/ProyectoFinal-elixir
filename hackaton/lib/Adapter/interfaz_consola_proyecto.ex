@@ -3,7 +3,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Service.ProyectoServicio
   alias HackathonApp.Service.Autorizacion
   alias HackathonApp.Session
-  alias HackathonApp.Adapter.AvancesCliente
 
   # ====== ENTRADA ======
   def iniciar do

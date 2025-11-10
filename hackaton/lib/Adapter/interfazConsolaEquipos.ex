@@ -39,7 +39,7 @@ defp eliminar_equipo do
 
   case HackathonApp.Service.EquipoServicio.eliminar_equipo(ident) do
     {:ok, nombre, id, borradas} ->
-      IO.puts("✔ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}")
+      IO.puts("✔️ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}")
 
     {:error, msg} ->
       IO.puts("Error: #{msg}")

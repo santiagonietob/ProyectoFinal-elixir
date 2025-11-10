@@ -1,17 +1,4 @@
 id,nombre,correo,rol,salt,hash
-<<<<<<< HEAD
-1,ola,ola@,mentor,rDh1DR/iHI6cEHQEnYxYwg==,5a87ef957286b2dad3fe39e2a4509d7d2f4abb51569ba23cd66714cbda09de76
-2,santi,santi@,participante,1RH2H2+rknLcWz3pL3nTjQ==,016ddf1bb2a5df8f73f2f90591de2cf800d5e6875c4d6b89925501b637006e55
-=======
-1,valen,valen@gmail.com,mentor,fQXvvKVjPlFshohAgbSEVg==,d28fdfb536eb52e89804b76188d2de22b3613f5bde8af129789cccb8dcbb2a3e
-2,val,vañ@.com,mentor,oKqXyDSCx5kXfK134zWCPQ==,0e645624ebb3ae23f33bfc9e31875db14d4b93be7af96adacf05b970cca33c23
-3,santi,santi@,organizador,4cLaXqRFyo1eu0SK15SIWA==,d5c0b6d187d64367dc9c62d766a0b25da4abc639f28a13b5b442ea60aabb3afa
-4,2,santi@,participante,2fg1Phl3EV49v/45fI5y7g==,b55c6712ca89a8b1dbe012a68ee1f3eb2c8931f49447721438234f3905ba9878
-5,dani,dani@,organizador,2gLT2rm3oSmAXKf+cqC6IA==,f73b3c7689c11a7f4b63cf982011ef66faa5410d04316e120f88c2800a56f7a7
-6,ola,ola@,mentor,5s0s7LQC7xY0RdXHoM5VCQ==,27128c5e908f41c666c93c2210c8452a78f79ac3ebc8a74fc888c09e23c1c510
-7,loc,loc@,mentor,UGbWQ23RY6Qke/SBfTtIFA==,61dd290c38780c8917ba82d030ca31fa082716270bd512eceb12c287c2c6e0ae
-8,yasmin,yasmin@jdnh.com,organizador,RhXlJTr67TrarbqJl7UKvA==,615d5499b75986f2b56af64a5b0aef691243f3893b1e72b2fe51035e1e291b06
-9,Yei,yd@gmail.com,organizador,ObZ6dyosz8EQ0BX38Qe53Q==,1c4a8c73440d91085baf8c451ffad3331086a2c996afd9e6ce287cda3be6eac5
-10,Johana,Joha@gmail.com,participante,q2M9AHIAUzNuU/Wlx7fhrA==,a43151af0665d0541c07a916c8bec7872819c2df6cdc7bcda19ef4dd6282265f
-11,Yeii,yei@gmail.com,participante,xGWRwHQPid7SiLqABawHog==,122cbfedc0162b55b861d7a31b03b531e7e859c3428b64127160400557539479
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
+1,ola,ola@.com,mentor,jYlKteuxs8JUR8JISDG76Q==,43040e2be4abed73bb33565872dd16ef628b8e2fc151b9f2be230efe0abfd528
+2,ola1,ola@jn,participante,dGpldXguJr/LEwnfBu5x7A==,9154ff080dc66898811573172ab5f84aacb07a8cab94bb3bc8ba72637520abce
+3,or,or,organizador,mds9wfE/B+1wG3ZHUujFNw==,b34bf08cf44b7e0b67f2bd134636e76b487314c53509c89266d2beb99dc20b8a

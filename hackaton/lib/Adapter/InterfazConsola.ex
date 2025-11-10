@@ -9,7 +9,7 @@ defmodule HackathonApp.Adapter.InterfazConsola do
 
   def iniciar do
     HackathonApp.Guard.ensure_role!("organizador")
-    IO.puts("\n=== HACKATHON COLABORATIVA ===")
+    IO.puts("\n=== HACKATHON COLABORATIVA ===\n")
     IO.puts("1) Gestión de equipos")
     IO.puts("2) Gestión de proyectos")
     IO.puts("3) Comunicación en tiempo real")
