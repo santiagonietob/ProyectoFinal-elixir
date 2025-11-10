@@ -39,9 +39,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   end
 
   # ====== ACCIONES ======
-  defp registrar do
-    case Session.current() do
-      %{id: uid, rol: rol} when Autorizacion.can?(rol, :registrar_proyecto) ->
+ defp registrar do
+  case Session.current() do
+    %{id: uid, rol: rol} ->
+      if Autorizacion.can?(rol, :registrar_proyecto) do
         tit = ask("Título del proyecto: ")
         cat = ask("Categoría (web|movil|ia|datos|iot|otros): ")
 
@@ -51,103 +52,114 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
           %{id: equipo_id} ->
             case ProyectoServicio.crear(equipo_id, tit, cat) do
-              {:ok, p}   -> print_proyecto_creado(p)
+              {:ok, p}    -> print_proyecto_creado(p)
               {:error, m} -> IO.puts("Error: " <> m)
             end
         end
-
-      _ ->
+      else
         IO.puts("Acceso denegado (no puedes registrar proyectos).")
-    end
-  end
+      end
 
-  defp estado do
-    case Session.current() do
-      %{rol: rol} when Autorizacion.can?(rol, :cambiar_estado_proyecto) ->
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
+  end
+end
+
+ defp estado do
+  case Session.current() do
+    %{rol: rol} ->
+      if Autorizacion.can?(rol, :cambiar_estado_proyecto) do
         id  = ask_int("Proyecto ID: ")
-        e_in = ask("Estado (idea|en_progreso|entregado) [acepta sinónimos]: ")
-        e   = normalizar_estado(e_in)
+        e   = normalizar_estado(ask("Estado (idea|en_progreso|entregado) [acepta sinónimos]: "))
 
         case ProyectoServicio.cambiar_estado(id, e) do
           {:ok, nuevo} -> IO.puts("Estado actualizado a: #{nuevo}")
           {:error, m}  -> IO.puts("#{m}")
           otro         -> IO.inspect(otro, label: "Respuesta cambiar_estado/2")
         end
-
-      _ ->
+      else
         IO.puts("Acceso denegado (no puedes cambiar el estado del proyecto).")
-    end
+      end
+
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
   end
+end
 
   defp avance do
-    case Session.current() do
-      %{rol: rol} when Autorizacion.can?(rol, :agregar_avance) ->
+  case Session.current() do
+    %{rol: rol} ->
+      if Autorizacion.can?(rol, :agregar_avance) do
         pid = ask_int("Proyecto ID: ")
         txt = ask("Avance: ")
 
         case ProyectoServicio.agregar_avance(pid, txt) do
-          {:ok, _}  -> IO.puts("Avance registrado")
+          {:ok, _}    -> IO.puts("Avance registrado")
           {:error, m} -> IO.puts("#{m}")
-          otro         -> IO.inspect(otro, label: "Respuesta agregar_avance/2")
+          otro        -> IO.inspect(otro, label: "Respuesta agregar_avance/2")
         end
-
-      _ ->
+      else
         IO.puts("Acceso denegado (no puedes agregar avances).")
-    end
+      end
+
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
   end
+end
 
   defp por_categoria do
-    case Session.current() do
-      %{rol: rol} when Autorizacion.can?(rol, :ver_proyecto) ->
-        cat_in = ask("Categoría (web|movil|ia|datos|iot|otros): ")
-        cat = String.downcase(String.trim(cat_in))
-
-        proyectos =
-          listar_seguro()
-          |> Enum.filter(&(&1.categoria == cat))
-
+  case Session.current() do
+    %{rol: rol} ->
+      if Autorizacion.can?(rol, :ver_proyecto) do
+        cat = ask("Categoría (web|movil|ia|datos|iot|otros): ") |> String.downcase() |> String.trim()
+        proyectos = listar_seguro() |> Enum.filter(&(&1.categoria == cat))
         listar(proyectos)
-
-      _ ->
+      else
         IO.puts("Acceso denegado.")
-    end
-  end
+      end
 
-  defp por_estado do
-    case Session.current() do
-      %{rol: rol} when Autorizacion.can?(rol, :ver_proyecto) ->
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
+  end
+end
+
+ defp por_estado do
+  case Session.current() do
+    %{rol: rol} ->
+      if Autorizacion.can?(rol, :ver_proyecto) do
         est = normalizar_estado(ask("Estado (idea|en_progreso|entregado): "))
-
-        proyectos =
-          listar_seguro()
-          |> Enum.filter(&(&1.estado == est))
-
+        proyectos = listar_seguro() |> Enum.filter(&(&1.estado == est))
         listar(proyectos)
-
-      _ ->
+      else
         IO.puts("Acceso denegado.")
-    end
+      end
+
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
   end
+end
 
   # ====== SUSCRIPCIÓN A AVANCES (TIEMPO REAL, SIN BLOQUEAR) ======
   defp sub_avances do
-    case Session.current() do
-      %{rol: rol} when Autorizacion.can?(rol, :ver_proyecto) ->
+  case Session.current() do
+    %{rol: rol} ->
+      if Autorizacion.can?(rol, :ver_proyecto) do
         id = ask_int("Proyecto ID a suscribirse: ")
-
-        case AvancesCliente.suscribirse(id) do
+        case HackathonApp.Adapter.AvancesCliente.suscribirse(id) do
           :ok ->
             IO.puts("Suscrito al proyecto #{id}. Esperando avances en tiempo real...\n")
-            escuchar_avances(id, 15)  # escucha 15s
-
+            escuchar_avances(id, 15)
           {:error, m} ->
             IO.puts("Error al suscribirse: #{inspect(m)}")
         end
-
-      _ ->
+      else
         IO.puts("Acceso denegado.")
-    end
+      end
+
+    _ ->
+      IO.puts("No hay sesión activa. Inicia sesión primero.")
   end
+end
 
   # Escucha controlada: consume mensajes por N segundos y luego vuelve al menú.
   defp escuchar_avances(_proyecto_id, segundos_restantes) when segundos_restantes <= 0 do
