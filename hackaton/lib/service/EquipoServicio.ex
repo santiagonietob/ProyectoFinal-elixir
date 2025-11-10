@@ -13,11 +13,6 @@ defmodule HackathonApp.Service.EquipoServicio do
 
   @equipos_csv "data/equipos.csv"
   @membresias_csv "data/membresias.csv"
-<<<<<<< HEAD
-=======
-
-  @roles_validos ~w(miembro lider)
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 
   # -------------------------
   # Crear / Listar / Buscar
@@ -198,7 +193,6 @@ defmodule HackathonApp.Service.EquipoServicio do
       xs -> Enum.max_by(xs, & &1.id).id + 1
     end
   end
-<<<<<<< HEAD
 
   @doc "Lista todos los equipos (sin filtrar)."
   @spec listar_equipos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
@@ -261,6 +255,4 @@ defmodule HackathonApp.Service.EquipoServicio do
       {:ok, Enum.filter(equipos, & &1.activo)}
     end
   end
-=======
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 end

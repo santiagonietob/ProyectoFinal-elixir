@@ -1,6 +1,8 @@
 defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   @moduledoc "Menú para registrar proyectos, gestionar estados, avances y consultas."
   alias HackathonApp.Service.ProyectoServicio
+  alias HackathonApp.Service.Autorizacion
+  alias HackathonApp.Session
 
   # ====== ENTRADA ======
   def iniciar do

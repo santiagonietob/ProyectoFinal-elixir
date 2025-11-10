@@ -11,52 +11,41 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   end
 
   defp menu do
-    IO.puts("\n=== Gestión de equipos (organizador) ===")
-    IO.puts("1) Registrar participante/mentor/organizador")
-    IO.puts("2) Crear equipo (por tema)")
-    IO.puts("3) Unir participante a equipo")
-    IO.puts("4) Listar equipos activos")
-    IO.puts("5) Listar miembros de un equipo")
-    IO.puts("6) Volver")
-    IO.puts("0) Salir")
+  IO.puts("\n=== Gestión de equipos (organizador) ===")
+  IO.puts("1) Registrar participante/mentor/organizador")
+  IO.puts("2) Crear equipo (por tema)")
+  IO.puts("3) Unir participante a equipo")
+  IO.puts("4) Listar equipos activos")
+  IO.puts("5) Listar miembros de un equipo")
+  IO.puts("6) Eliminar equipo")
+  IO.puts("7) Volver")
+  IO.puts("0) Salir")
 
-    case IO.gets("> ") |> to_str() do
-      "1" ->
-        ensure_organizer!()
-        registrar_usuario()
-        menu()
-
-      "2" ->
-        ensure_organizer!()
-        crear_equipo()
-        menu()
-
-      "3" ->
-        ensure_organizer!()
-        unir_usuario()
-        menu()
-
-      "4" ->
-        ensure_organizer!()
-        listar_activos_con_ids()
-        menu()
-
-      "5" ->
-        ensure_organizer!()
-        listar_miembros()
-        menu()
-
-      "6" ->
-        InterfazConsola.iniciar()
-
-      "0" ->
-        IO.puts("Hasta luego.")
-
-      _ ->
-        IO.puts("Opción inválida")
-        menu()
-    end
+  case IO.gets("> ") |> to_str() do
+    "1" -> ensure_organizer!(); registrar_usuario(); menu()
+    "2" -> ensure_organizer!(); crear_equipo(); menu()
+    "3" -> ensure_organizer!(); unir_usuario(); menu()
+    "4" -> ensure_organizer!(); listar_activos_con_ids(); menu()
+    "5" -> ensure_organizer!(); listar_miembros(); menu()
+    "6" -> ensure_organizer!(); eliminar_equipo(); menu()
+    "7" -> InterfazConsola.iniciar()
+    "0" -> IO.puts("Hasta luego.")
+    _   -> IO.puts("Opción inválida"); menu()
   end
+end
+
+defp eliminar_equipo do
+  ident = ask("Equipo a eliminar (nombre o id): ") |> String.trim()
+
+  case HackathonApp.Service.EquipoServicio.eliminar_equipo(ident) do
+    {:ok, nombre, id, borradas} ->
+      IO.puts("✔️ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}")
+
+    {:error, msg} ->
+      IO.puts("Error: #{msg}")
+  end
+end
+
 
   # ======== Guardias de acceso ========
   defp ensure_organizer! do

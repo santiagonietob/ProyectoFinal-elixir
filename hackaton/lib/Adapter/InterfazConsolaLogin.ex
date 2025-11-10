@@ -38,7 +38,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     case AuthServicio.login(nombre, pass) do
       {:ok, u} ->
         start_session(u)
-        IO.puts("Bienvenido #{u.nombre} (rol=#{u.rol})")
+        IO.puts("\nBienvenido #{u.nombre} (Interfaz #{u.rol})")
         ruteo_por_rol(u.rol)
 
       {:error, m} ->
