@@ -14,6 +14,7 @@ defmodule HackathonApp.Adapter.InterfazConsola do
     IO.puts("2) Gestión de proyectos")
     IO.puts("3) Comunicación en tiempo real")
     IO.puts("4) Mentoría y retroalimentación")
+    IO.puts("5) Modo comandos (/help, /teams, /project...)")
     IO.puts("0) Salir")
 
     case IO.gets("> ") |> String.trim() do
@@ -31,6 +32,10 @@ defmodule HackathonApp.Adapter.InterfazConsola do
 
       "4" ->
         InterfazConsolaMentoria.iniciar()
+        iniciar()
+
+      "5" ->
+        HackathonApp.Adapter.ComandosCLI.iniciar()
         iniciar()
 
       "0" ->

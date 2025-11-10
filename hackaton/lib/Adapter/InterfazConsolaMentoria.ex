@@ -23,6 +23,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     IO.puts("5) Ver miembros de un equipo")
     IO.puts("6) Ver mensajes recientes de un equipo")
     IO.puts("7) Enviar mensaje al equipo (consulta)")
+    IO.puts("8) Modo comandos (/help, /teams, /project...)")
     IO.puts("0) Volver")
 
     case prompt("> ") do
@@ -53,6 +54,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
       "7" ->
         enviar_mensaje(u)
         loop(u)
+
+      "8" -> HackathonApp.Adapter.ComandosCLI.iniciar(); loop(u)
 
       "0" ->
         :ok

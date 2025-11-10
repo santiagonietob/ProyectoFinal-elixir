@@ -1,7 +1,7 @@
 defmodule HackathonApp.Adapter.ComandosCLI do
   @moduledoc """
-  Intérprete de comandos tipo slash (global).
-  /teams, /project <equipo>, /join <equipo>, /chat <equipo>, /help, /exit
+  Intérprete de comandos tipo slash (modo comandos).
+  Usa /back para volver al menú anterior; /quit para cerrar la app.
   """
 
   alias HackathonApp.Session
@@ -9,41 +9,70 @@ defmodule HackathonApp.Adapter.ComandosCLI do
   alias HackathonApp.Adapter.AvancesCliente
 
   # ===== Entrada principal =====
+  @doc """
+  Inicia el modo comandos. Retorna :back cuando el usuario teclea /back o /salir.
+  """
   def iniciar do
     case Session.current() do
       nil ->
         IO.puts("No hay sesión. Inicia sesión primero.")
+        :back
 
       %{nombre: n, rol: r} ->
         IO.puts("\n=== MODO COMANDOS ===")
-        IO.puts("Usuario: #{n} (rol=#{r}). Escribe /help para ver los comandos. /exit para salir.")
+        IO.puts("Usuario: #{n} (rol=#{r})")
+        IO.puts("Escribe /help para ver comandos. Usa /back para volver.")
         loop()
     end
   end
 
+  # Bucle principal: devuelve :back para volver al menú anterior
   defp loop do
     case IO.gets("> ") do
-      :eof -> IO.puts("\n[Entrada cerrada]"); :ok
-      nil -> IO.puts("\n[Entrada nula]"); loop()
-      data -> data |> String.trim() |> dispatch(); loop()
+      :eof -> :back
+      nil  -> loop()
+      data ->
+        case dispatch(String.trim(to_string(data))) do
+          :back -> :back
+          _     -> loop()
+        end
     end
   end
 
-  # ===== Router de comandos =====
-  defp dispatch(""), do: :ok
-  defp dispatch("/help"), do: print_help()
-  defp dispatch("/exit"), do: System.halt(0)
+  # ===== Router de comandos (cada dispatch devuelve :cont o :back) =====
+  defp dispatch(""), do: :cont
+  defp dispatch("/help") do
+    IO.puts("""
+    Comandos:
+      /teams                  -> Listar equipos
+      /project <equipo>       -> Ver proyecto de un equipo
+      /join <equipo>          -> Unirse a un equipo (solo participantes)
+      /chat <equipo>          -> Entrar al canal del equipo (solo participantes, 15s)
+      /back | /salir          -> Volver al menú anterior
+      /quit                   -> Cerrar aplicación
+    """)
+    :cont
+  end
 
-  # --- /teams ---
+  # salir del modo comandos (volver al menú que te llamó)
+  defp dispatch("/back"),  do: :back
+  defp dispatch("/salir"), do: :back
+
+  # salir de toda la app (opcional)
+  defp dispatch("/quit") do
+    IO.puts("Cerrando aplicación...")
+    System.halt(0)
+  end
+
   defp dispatch("/teams") do
     IO.puts("\n--- Equipos registrados ---")
     EquipoServicio.listar_todos()
     |> Enum.each(fn e ->
       IO.puts("• #{e.nombre} (id=#{e.id}, activo=#{e.activo})")
     end)
+    :cont
   end
 
-  # --- /project nombre_equipo ---
   defp dispatch(<<"/project ", rest::binary>>) do
     nombre_eq = String.trim(rest)
     case ProyectoServicio.buscar_por_equipo(nombre_eq) do
@@ -56,15 +85,15 @@ defmodule HackathonApp.Adapter.ComandosCLI do
         IO.puts("  estado:    #{p.estado}")
         IO.puts("  creado:    #{p.fecha_registro}")
     end
+    :cont
   end
 
-  # --- /join equipo ---
   defp dispatch(<<"/join ", rest::binary>>) do
     nombre_eq = String.trim(rest)
     case Session.current() do
       %{id: uid, rol: "participante"} ->
         case EquipoServicio.unirse_a_equipo(nombre_eq, uid) do
-          {:ok, _} -> IO.puts("Te uniste al equipo \"#{nombre_eq}\".")
+          {:ok, _}    -> IO.puts("Te uniste al equipo \"#{nombre_eq}\".")
           {:error, m} -> IO.puts("No se pudo unir: #{m}")
         end
       %{rol: r} ->
@@ -72,9 +101,9 @@ defmodule HackathonApp.Adapter.ComandosCLI do
       _ ->
         IO.puts("No hay sesión activa.")
     end
+    :cont
   end
 
-  # --- /chat equipo ---
   defp dispatch(<<"/chat ", rest::binary>>) do
     nombre_eq = String.trim(rest)
     case Session.current() do
@@ -96,25 +125,14 @@ defmodule HackathonApp.Adapter.ComandosCLI do
       _ ->
         IO.puts("No hay sesión activa.")
     end
+    :cont
   end
 
-  # --- Comando desconocido ---
-  defp dispatch(<< ?/, _::binary >>), do: IO.puts("Comando desconocido. Usa /help.")
-  defp dispatch(_text), do: IO.puts("(Escribe /help para ver los comandos)")
+  # Desconocido: si empieza por '/', avisa; si no, ignora
+  defp dispatch(<< ?/, _::binary >>), do: (IO.puts("Comando desconocido. Usa /help."); :cont)
+  defp dispatch(_text), do: :cont
 
   # ===== Helpers =====
-  defp print_help do
-    IO.puts("""
-    Comandos disponibles:
-      /teams                  -> Listar equipos registrados
-      /project <nombre>       -> Ver proyecto de un equipo
-      /join <nombre_equipo>   -> Unirse a un equipo (solo participantes)
-      /chat <nombre_equipo>   -> Entrar al canal de chat (solo participantes)
-      /help                   -> Mostrar esta ayuda
-      /exit                   -> Salir
-    """)
-  end
-
   defp escuchar_avances(_proyecto_id, 0), do: IO.puts("Fin del chat.")
   defp escuchar_avances(proyecto_id, segundos) do
     receive do
