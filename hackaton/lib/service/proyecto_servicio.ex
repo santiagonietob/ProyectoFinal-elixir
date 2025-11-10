@@ -16,58 +16,6 @@ defmodule HackathonApp.Service.ProyectoServicio do
   @estados ~w(idea en_progreso entregado)
   @categorias ~w(web movil ia datos iot otros)
 
-<<<<<<< HEAD
- @spec crear(integer(), String.t(), String.t()) :: {:ok, Proyecto.t()} | {:error, String.t()}
-def crear(equipo_id, titulo, categoria) do
-  id = siguiente_id_proyecto()
-  ahora = DateTime.utc_now() |> DateTime.to_iso8601()
-
-  :ok =
-    CSV.agregar(@ruta_proy, [
-      Integer.to_string(id),
-      Integer.to_string(equipo_id),
-      limpiar(titulo),
-      limpiar(categoria),
-      "idea",
-      ahora
-    ])
-
-  proyecto = %Proyecto{
-    id: id,
-    equipo_id: equipo_id,
-    titulo: titulo,
-    categoria: categoria,
-    estado: "idea",
-    fecha_registro: ahora
-  }
-
-  IO.puts("\nProyecto registrado correctamente.")
-  IO.puts("ID: #{proyecto.id}")
-  IO.puts("Equipo ID: #{proyecto.equipo_id}")
-  IO.puts("Título: #{proyecto.titulo}")
-  IO.puts("Categoría: #{proyecto.categoria}")
-  IO.puts("Estado inicial: #{proyecto.estado}")
-  IO.puts("Fecha de registro: #{proyecto.fecha_registro}\n")
-
-  {:ok, proyecto}
-end
-
-  # CORRECCIÓN DE SPEC (este es tu listar/0 actual)
-  @spec listar() :: [Proyecto.t()]
-  def listar do
-    CSV.leer(@ruta_proy)
-    |> Enum.map(fn [id, eq, t, c, e, f] ->
-      %Proyecto{
-        id: String.to_integer(id),
-        equipo_id: String.to_integer(eq),
-        titulo: t,
-        categoria: c,
-        estado: e,
-        fecha_registro: f
-      }
-    end)
-  end
-=======
   # ---------- Crear ----------
   @spec crear(integer(), String.t(), String.t()) :: {:ok, Proyecto.t()} | {:error, String.t()}
   def crear(equipo_id, titulo, categoria) when is_integer(equipo_id) do
@@ -83,7 +31,6 @@ end
 
       existe_proyecto?(t, equipo_id) ->
         {:error, "Ya existe un proyecto con ese título en el equipo"}
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 
       true ->
         id = siguiente_id_proyecto()

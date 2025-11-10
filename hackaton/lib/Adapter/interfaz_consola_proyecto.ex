@@ -1,10 +1,6 @@
 defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   @moduledoc "Menú para registrar proyectos, gestionar estados, avances y consultas."
   alias HackathonApp.Service.ProyectoServicio
-<<<<<<< HEAD
-=======
-  alias HackathonApp.Adapter.AvancesCliente
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
 
   # ====== ENTRADA ======
   def iniciar do
@@ -55,7 +51,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   # ====== ACCIONES ======
   defp registrar do
-<<<<<<< HEAD
     u = HackathonApp.Session.current()
 
     case u do
@@ -83,17 +78,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
       _ ->
         IO.puts("Solo los participantes pueden registrar proyectos.")
-=======
-    eq = ask_int("Equipo ID: ")
-    tit = ask("Título (nombre del proyecto): ")
-    desc = ask("Descripción (opcional): ")
-    cat = ask("Categoría (web|movil|ia|datos|iot|otros): ")
-
-    case ProyectoServicio.crear(tit, desc, cat, eq) do
-      {:ok, p} -> IO.puts("Proyecto ##{p.id} \"#{p.titulo}\" creado en equipo #{p.equipo_id}")
-      {:error, m} -> IO.puts("#{m}")
-      otro -> IO.inspect(otro, label: "Respuesta crear/4")
->>>>>>> d7c9dcfd7f105d24521c3b85349250d4ac733ee8
     end
   end
 
