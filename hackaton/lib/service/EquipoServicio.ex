@@ -301,11 +301,11 @@ end
     end
   end
 
-  @doc "Lista sólo los equipos activos (activo=true)."
-  @spec listar_equipos_activos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
-  def listar_equipos_activos do
-    with {:ok, equipos} <- listar_equipos() do
-      {:ok, Enum.filter(equipos, & &1.activo)}
-    end
-  end
+ @doc "Busca equipo por nombre exacto (tras trim)."
+@spec buscar_equipo_por_nombre(String.t()) :: Equipo.t() | nil
+def buscar_equipo_por_nombre(nombre) do
+  n = nombre |> to_string() |> String.trim()
+  Enum.find(listar_todos(), &(&1.nombre == n))
+end
+
 end
