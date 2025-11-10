@@ -87,12 +87,11 @@ defmodule HackathonApp.Service.EquipoServicio do
   @spec listar_equipos_activos() :: [Equipo.t()]
   def listar_equipos_activos, do: listar_todos() |> Enum.filter(& &1.activo)
 
-  @doc "Busca equipo por nombre exacto (tras trim)."
-  @spec buscar_equipo_por_nombre(String.t()) :: Equipo.t() | nil
-  def buscar_equipo_por_nombre(nombre) do
-    n = nombre |> to_string() |> String.trim()
-    Enum.find(listar_todos(), &(&1.nombre == n))
-  end
+ @doc "Busca equipo por id (entero)."
+@spec buscar_equipo_por_id(non_neg_integer) :: Equipo.t() | nil
+def buscar_equipo_por_id(equipo_id) do
+  Enum.find(listar_todos(), &(&1.id == equipo_id))
+end
 
   @doc "Devuelve [{nombre_equipo, conteo_miembros}] (para /teams)."
   @spec listar_equipos_con_conteo() :: [{String.t(), non_neg_integer}]
@@ -172,6 +171,60 @@ defmodule HackathonApp.Service.EquipoServicio do
       _ -> []
     end
   end
+
+  @doc """
+Elimina un equipo por nombre *o* id. También borra sus membresías.
+Retorna: {:ok, nombre, id, cantidad_membresias_borradas} | {:error, motivo}
+"""
+@spec eliminar_equipo(String.t() | integer()) ::
+        {:ok, String.t(), non_neg_integer, non_neg_integer} | {:error, String.t()}
+def eliminar_equipo(ident) do
+  {eq, id} =
+    case ident do
+      i when is_integer(i) ->
+        case buscar_equipo_por_id(i) do
+          nil -> {nil, nil}
+          e   -> {e, i}
+        end
+
+      s when is_binary(s) ->
+        s = String.trim(s)
+
+        case Integer.parse(s) do
+          {i, ""} ->
+            case buscar_equipo_por_id(i) do
+              nil -> {nil, nil}
+              e   -> {e, i}
+            end
+
+          _ ->
+            case buscar_equipo_por_nombre(s) do
+              nil -> {nil, nil}
+              %Equipo{id: i} = e -> {e, i}
+            end
+        end
+    end
+
+  if is_nil(eq) do
+    {:error, "Equipo inexistente"}
+  else
+    id_str = Integer.to_string(id)
+
+    # 1) Reescribir equipos.csv SIN el equipo
+    filas_eq = CSV.leer(@equipos_csv)
+    nuevas_eq = Enum.reject(filas_eq, fn [idc | _] -> idc == id_str end)
+    :ok = CSV.reescribir(@equipos_csv, nuevas_eq)
+
+    # 2) Reescribir membresias.csv SIN las del equipo
+    filas_mem = CSV.leer(@membresias_csv)
+    {quedan, borradas} =
+      Enum.split_with(filas_mem, fn [_u, e_id, _rol] -> e_id != id_str end)
+
+    :ok = CSV.reescribir(@membresias_csv, quedan)
+
+    {:ok, eq.nombre, id, length(borradas)}
+  end
+end
 
   # -------------------------
   # Helpers privados
