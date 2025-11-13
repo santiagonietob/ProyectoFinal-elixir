@@ -47,7 +47,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               sub_avances()
               iniciar()
 
-            "7" -> HackathonApp.Adapter.ComandosCLI.iniciar(); iniciar()
+            "7" ->
+              HackathonApp.Adapter.ComandosCLI.iniciar()
+              iniciar()
 
             "0" ->
               :ok

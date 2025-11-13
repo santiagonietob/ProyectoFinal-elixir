@@ -21,7 +21,9 @@ defmodule HackathonApp.Adapter.SalasTematicas do
   @doc "Asegura que el servidor esté corriendo."
   def ensure_started do
     case Process.whereis(@nombre) do
-      pid when is_pid(pid) -> {:ok, pid}
+      pid when is_pid(pid) ->
+        {:ok, pid}
+
       nil ->
         case start_link([]) do
           {:ok, pid} -> {:ok, pid}
@@ -65,7 +67,8 @@ defmodule HackathonApp.Adapter.SalasTematicas do
   @impl true
   def handle_info({:suscribir, pid, sala}, %{salas: salas} = state) do
     Process.monitor(pid)
-    subs = salas |> Map.get(sala, []) |> Enum.uniq([pid | &1])
+    subs_prev = Map.get(salas, sala, [])
+    subs = Enum.uniq([pid | subs_prev])
     {:noreply, %{state | salas: Map.put(salas, sala, subs)}}
   end
 

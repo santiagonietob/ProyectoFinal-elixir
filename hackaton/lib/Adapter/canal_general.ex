@@ -21,7 +21,9 @@ defmodule HackathonApp.Adapter.CanalGeneral do
   @doc "Asegura que el servidor esté corriendo."
   def ensure_started do
     case Process.whereis(@nombre) do
-      pid when is_pid(pid) -> {:ok, pid}
+      pid when is_pid(pid) ->
+        {:ok, pid}
+
       nil ->
         case start_link([]) do
           {:ok, pid} -> {:ok, pid}

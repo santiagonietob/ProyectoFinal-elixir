@@ -55,7 +55,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         enviar_mensaje(u)
         loop(u)
 
-      "8" -> HackathonApp.Adapter.ComandosCLI.iniciar(); loop(u)
+      "8" ->
+        HackathonApp.Adapter.ComandosCLI.iniciar()
+        loop(u)
 
       "0" ->
         :ok
