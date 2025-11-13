@@ -7,10 +7,16 @@ defmodule HackathonApp do
     IO.puts("\nIniciando HackathonApp...")
 
     children = [
-      # Arranca el servidor de avances como GenServer (usa start_link/1)
+      # Servidor de avances (broadcast de avances de proyectos)
       {HackathonApp.Adapter.AvancesServidor, []},
 
-      # UI: no reiniciar la UI
+      # Canal general de anuncios
+      {HackathonApp.Adapter.CanalGeneral, []},
+
+      # Gestor de salas temáticas de chat
+      {HackathonApp.Adapter.SalasTematicas, []},
+
+      # UI: pantalla de login (no se reinicia automáticamente)
       %{
         id: :ui_login,
         start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
