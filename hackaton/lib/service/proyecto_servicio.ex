@@ -9,6 +9,7 @@ defmodule HackathonApp.Service.ProyectoServicio do
   alias HackathonApp.Domain.{Proyecto, Avance}
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
   alias HackathonApp.Service.EquipoServicio
+  alias HackathonApp.Adapter.AvancesCliente
 
   @proy_csv "data/proyectos.csv"
   @av_csv "data/avances.csv"
@@ -148,37 +149,40 @@ defmodule HackathonApp.Service.ProyectoServicio do
     if proyecto?(pid) do
       id = siguiente_id_avance()
       fecha = DateTime.utc_now() |> DateTime.to_iso8601()
+      limpio = limpiar(contenido)
 
       :ok =
         CSV.agregar(@av_csv, [
           Integer.to_string(id),
           Integer.to_string(pid),
-          limpiar(contenido),
+          limpio,
           fecha
         ])
 
-      {:ok, %Avance{id: id, proyecto_id: pid, contenido: contenido, fecha_iso: fecha}}
+      avance = %Avance{
+        id: id,
+        proyecto_id: pid,
+        contenido: limpio,
+        fecha_iso: fecha
+      }
+
+      # Notificar en tiempo real (no bloquear la UI si algo falla)
+      _ =
+        Task.start(fn ->
+          AvancesCliente.publicar_avance(pid, %{
+            id: id,
+            proyecto_id: pid,
+            contenido: limpio,
+            mensaje: limpio,
+            fecha_iso: fecha,
+            timestamp: fecha
+          })
+        end)
+
+      {:ok, avance}
     else
       {:error, "Proyecto no existe"}
     end
-  end
-
-  def listar_avances(proyecto_id) do
-    pid = to_int(proyecto_id)
-
-    CSV.leer(@av_csv)
-    |> Enum.filter(fn
-      [_id, p, _m, _f] -> p == Integer.to_string(pid)
-      _ -> false
-    end)
-    |> Enum.map(fn [id, p, c, f] ->
-      %Avance{
-        id: String.to_integer(id),
-        proyecto_id: String.to_integer(p),
-        contenido: c,
-        fecha_iso: f
-      }
-    end)
   end
 
   # ---------- helpers ----------

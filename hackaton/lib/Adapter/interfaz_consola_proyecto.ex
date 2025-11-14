@@ -1,8 +1,10 @@
 defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   @moduledoc "Menú para registrar proyectos, gestionar estados, avances y consultas."
+
   alias HackathonApp.Service.ProyectoServicio
   alias HackathonApp.Service.Autorizacion
   alias HackathonApp.Session
+  alias HackathonApp.Adapter.AvancesCliente
 
   # ====== ENTRADA ======
   def iniciar do
@@ -173,47 +175,36 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   # ====== SUSCRIPCIÓN A AVANCES (TIEMPO REAL, SIN BLOQUEAR) ======
   defp sub_avances do
-    case Session.current() do
-      %{rol: rol} ->
-        if Autorizacion.can?(rol, :ver_proyecto) do
-          id = ask_int("Proyecto ID a suscribirse: ")
+    id = ask_int("Proyecto ID a suscribirse: ")
 
-          case HackathonApp.Adapter.AvancesCliente.suscribirse(id) do
-            :ok ->
-              IO.puts("Suscrito al proyecto #{id}. Esperando avances en tiempo real...\n")
-              escuchar_avances(id, 15)
+    case AvancesCliente.suscribirse(id) do
+      :ok ->
+        # proceso en segundo plano escuchando avances
+        spawn(fn -> loop_listen(id) end)
+        IO.puts("Suscrito al proyecto #{id}. Puedes seguir usando el menú...\n")
 
-            {:error, m} ->
-              IO.puts("Error al suscribirse: #{inspect(m)}")
-          end
-        else
-          IO.puts("Acceso denegado.")
-        end
-
-      _ ->
-        IO.puts("No hay sesión activa. Inicia sesión primero.")
+      {:error, m} ->
+        IO.puts("Error al suscribirse: #{inspect(m)}")
     end
   end
 
-  # Escucha controlada: consume mensajes por N segundos y luego vuelve al menú.
-  defp escuchar_avances(_proyecto_id, segundos_restantes) when segundos_restantes <= 0 do
-    IO.puts("\nTiempo de escucha finalizado. Volviendo al menú de proyectos...\n")
-  end
-
-  defp escuchar_avances(proyecto_id, segundos_restantes) do
+  # proceso que escucha de forma indefinida los mensajes {:avance, a}
+  defp loop_listen(proyecto_id) do
     receive do
       {:avance, a} ->
-        t = a[:timestamp] || a[:fecha_iso] || "-"
-        msg = a[:mensaje] || a[:contenido] || "(sin contenido)"
-        IO.puts("[#{t}] Proyecto ##{proyecto_id}: #{msg}")
-        escuchar_avances(proyecto_id, segundos_restantes)
+        t   = a[:timestamp] || a[:fecha_iso] || "-"
+        msg = a[:mensaje]   || a[:contenido] || "(sin contenido)"
+
+        IO.puts("""
+
+[AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}
+        """)
+
+        loop_listen(proyecto_id)
 
       otro ->
-        IO.inspect(otro, label: "Evento recibido")
-        escuchar_avances(proyecto_id, segundos_restantes)
-    after
-      1_000 ->
-        escuchar_avances(proyecto_id, segundos_restantes - 1)
+        IO.inspect(otro, label: "Evento no reconocido en avances")
+        loop_listen(proyecto_id)
     end
   end
 
