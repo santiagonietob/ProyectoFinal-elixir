@@ -1,149 +1,204 @@
 defmodule HackathonApp.Adapter.InterfazConsolaChat do
   @moduledoc """
-  Menú de comunicación en tiempo real:
-  - Canal general de anuncios
-  - Salas temáticas de discusión
+  Cliente de chat en tiempo real para la Hackathon.
+  Se invoca desde el menú principal: "3) Comunicación en tiempo real".
   """
 
-  alias HackathonApp.Session
-  alias HackathonApp.Service.Autorizacion
-  alias HackathonApp.Adapter.{CanalGeneral, SalasTematicas}
-  alias HackathonApp.Adapter.ComandosCLI
+  # ═══════════════════════════════════════════════════════════
+  #  CONFIGURACIÓN - Modifica solo estas líneas
+  # ═══════════════════════════════════════════════════════════
 
-  # ===== Punto de entrada =====
-  def iniciar do
-    case Session.current() do
-      nil ->
-        IO.puts("No hay sesión. Inicia sesión primero.")
+  @nombre_servicio_local :cliente_chat
 
-      u ->
-        loop(u)
+  # Este tuple no se usa directamente, pero lo dejamos por si quieres extenderlo
+  @servicio_local {@nombre_servicio_local, :"nodocliente1@192.168.157.60"}
+
+  # Nodo del servidor de chat (la PC donde corre HackathonApp con ChatServidor)
+  @nodo_remoto :"nodoservidor@192.168.157.60"
+
+  # Nombre registrado del servidor de chat en ese nodo
+  @servicio_remoto {:chat_servidor, @nodo_remoto}
+
+  # ═══════════════════════════════════════════════════════════
+  #   PUNTO DE ENTRADA DESDE EL MENÚ
+  # ═══════════════════════════════════════════════════════════
+
+  def iniciar() do
+    mostrar_banner()
+    IO.puts(IO.ANSI.yellow() <> " Conectando a: #{@nodo_remoto}" <> IO.ANSI.reset())
+
+    nombre = solicitar_nombre()
+
+    registrar_servicio()
+    |> establecer_conexion(nombre)
+    |> iniciar_chat(nombre)
+  end
+
+  # ═══════════════════════════════════════════════════════════
+  #   UI BÁSICA
+  # ═══════════════════════════════════════════════════════════
+
+  defp mostrar_banner() do
+    IO.puts("\n" <> IO.ANSI.cyan())
+    IO.puts("       CHAT EN TIEMPO REAL       ")
+    IO.puts(IO.ANSI.reset())
+  end
+
+  defp solicitar_nombre() do
+    IO.gets("\n Ingresa tu nombre: ")
+    |> String.trim()
+    |> validar_nombre()
+  end
+
+  defp validar_nombre(""), do: solicitar_nombre()
+
+  defp validar_nombre(nombre) when byte_size(nombre) > 20 do
+    IO.puts(IO.ANSI.red() <> " Nombre muy largo (máximo 20 caracteres)" <> IO.ANSI.reset())
+    solicitar_nombre()
+  end
+
+  defp validar_nombre(nombre), do: nombre
+
+  # ═══════════════════════════════════════════════════════════
+  #   REGISTRO LOCAL Y CONEXIÓN
+  # ═══════════════════════════════════════════════════════════
+
+  defp registrar_servicio() do
+    Process.register(self(), @nombre_servicio_local)
+    :ok
+  end
+
+  defp establecer_conexion(:ok, nombre) do
+    case Node.connect(@nodo_remoto) do
+      true ->
+        send(@servicio_remoto, {:conectar, self(), nombre})
+        esperar_confirmacion(nombre)
+
+      false ->
+        {:error, "No se pudo conectar al servidor"}
+
+      :ignored ->
+        {:error, "Nodo ya conectado"}
     end
   end
 
-  defp loop(u) do
-    IO.puts("\n=== COMUNICACIÓN EN TIEMPO REAL ===")
-    IO.puts("Usuario: #{u.nombre} (rol=#{u.rol})\n")
-    IO.puts("1) Escuchar canal general (anuncios)")
-    IO.puts("2) Enviar anuncio general (solo organizador)")
-    IO.puts("3) Entrar a sala temática")
-    IO.puts("4) Enviar mensaje a sala temática")
-    IO.puts("5) Modo comandos (/help, /teams, /project...)")
-    IO.puts("0) Volver")
+  defp esperar_confirmacion(nombre) do
+    receive do
+      {:conectado, ^nombre} -> :ok
+      {:error, razon} -> {:error, razon}
+    after
+      5_000 -> {:error, "Timeout: el servidor no respondió"}
+    end
+  end
 
-    case prompt("> ") do
-      "1" ->
-        escuchar_canal()
-        loop(u)
+  # ═══════════════════════════════════════════════════════════
+  #   INICIO DEL CHAT
+  # ═══════════════════════════════════════════════════════════
 
-      "2" ->
-        enviar_anuncio(u)
-        loop(u)
+  defp iniciar_chat(:ok, nombre) do
+    IO.puts(
+      IO.ANSI.green() <>
+        "\n Conectado exitosamente como '#{nombre}'" <>
+        IO.ANSI.reset()
+    )
 
-      "3" ->
-        entrar_sala(u)
-        loop(u)
+    mostrar_ayuda()
 
-      "4" ->
-        enviar_a_sala(u)
-        loop(u)
+    # Proceso para leer del teclado
+    spawn(fn -> bucle_lectura(nombre) end)
 
-      "5" ->
-        ComandosCLI.iniciar()
-        loop(u)
+    # Proceso principal queda escuchando mensajes del servidor
+    bucle_receptor()
+  end
 
-      "0" ->
+  defp iniciar_chat({:error, razon}, _nombre) do
+    IO.puts(IO.ANSI.red() <> "\n Error: #{razon}" <> IO.ANSI.reset())
+    IO.puts("Intenta de nuevo.\n")
+  end
+
+  defp mostrar_ayuda() do
+    IO.puts("\n" <> IO.ANSI.blue() <> "━━━ Comandos disponibles ━━━")
+    IO.puts("  /usuarios  - Ver usuarios conectados")
+    IO.puts("  /ayuda     - Mostrar esta ayuda")
+    IO.puts("  /salir     - Salir del chat")
+    IO.puts("  Cualquier otro texto será enviado como mensaje")
+    IO.puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" <> IO.ANSI.reset() <> "\n")
+  end
+
+  # ═══════════════════════════════════════════════════════════
+  #   BUCLES DEL CLIENTE
+  # ═══════════════════════════════════════════════════════════
+
+  defp bucle_lectura(nombre) do
+    entrada = IO.gets("") |> String.trim()
+
+    case procesar_entrada(entrada) do
+      :continuar ->
+        bucle_lectura(nombre)
+
+      :salir ->
+        send(self_registered(), :salir)
+        :ok
+    end
+  end
+
+  defp bucle_receptor() do
+    receive do
+      {:mensaje_chat, mensaje, :sistema} ->
+        IO.puts(IO.ANSI.yellow() <> mensaje <> IO.ANSI.reset())
+        bucle_receptor()
+
+      {:mensaje_chat, mensaje, _tipo} ->
+        IO.puts(mensaje)
+        bucle_receptor()
+
+      {:info, info} ->
+        IO.puts(IO.ANSI.cyan() <> info <> IO.ANSI.reset())
+        bucle_receptor()
+
+      :salir ->
+        IO.puts(
+          IO.ANSI.green() <>
+            " Desconectado. ¡Hasta pronto!" <>
+            IO.ANSI.reset() <> "\n"
+        )
+
         :ok
 
       _ ->
-        IO.puts("Opción inválida")
-        loop(u)
+        bucle_receptor()
     end
   end
 
-  # ===== Canal general =====
-
-  defp escuchar_canal do
-    case CanalGeneral.suscribirse() do
-      :ok ->
-        IO.puts("Escuchando anuncios globales por 20 segundos...\n")
-        escuchar_anuncios(20)
-
-      {:error, r} ->
-        IO.puts("No se pudo suscribir al canal general: #{inspect(r)}")
-    end
+  defp self_registered() do
+    Process.whereis(@nombre_servicio_local)
   end
 
-  defp enviar_anuncio(u) do
-    if Autorizacion.can?(u.rol, :anunciar_general) do
-      msg = prompt("Texto del anuncio: ")
+  # ═══════════════════════════════════════════════════════════
+  #   PARSEO DE COMANDOS
+  # ═══════════════════════════════════════════════════════════
 
-      case CanalGeneral.anunciar(u.nombre, msg) do
-        :ok -> IO.puts("Anuncio enviado.")
-        {:error, r} -> IO.puts("Error al anunciar: #{inspect(r)}")
-      end
-    else
-      IO.puts("Acceso denegado: solo el organizador puede enviar anuncios generales.")
-    end
+  defp procesar_entrada(""), do: :continuar
+
+  defp procesar_entrada("/salir") do
+    IO.puts(IO.ANSI.yellow() <> "\n Saliendo del chat..." <> IO.ANSI.reset())
+    send(@servicio_remoto, {:desconectar, self_registered()})
+    Process.sleep(300)
+    :salir
   end
 
-  defp escuchar_anuncios(0), do: IO.puts("Fin de escucha de anuncios.\n")
-
-  defp escuchar_anuncios(segundos) when segundos > 0 do
-    receive do
-      {:anuncio, a} ->
-        IO.puts("[#{a.fecha_iso}] ANUNCIO de #{a.autor}: #{a.mensaje}")
-        escuchar_anuncios(segundos)
-    after
-      1_000 ->
-        escuchar_anuncios(segundos - 1)
-    end
+  defp procesar_entrada("/usuarios") do
+    send(@servicio_remoto, {:listar_usuarios, self_registered()})
+    :continuar
   end
 
-  # ===== Salas temáticas =====
-
-  defp entrar_sala(u) do
-    sala = prompt("Nombre de la sala (ej: ia, web, educacion): ")
-
-    case SalasTematicas.suscribirse(sala) do
-      :ok ->
-        IO.puts("Entraste a la sala '#{sala}'. Escuchando 30 segundos...\n")
-        escuchar_sala(sala, 30, u.nombre)
-
-      {:error, r} ->
-        IO.puts("No se pudo entrar a la sala: #{inspect(r)}")
-    end
+  defp procesar_entrada("/ayuda") do
+    mostrar_ayuda()
+    :continuar
   end
 
-  defp enviar_a_sala(u) do
-    sala = prompt("Sala: ")
-    texto = prompt("Mensaje: ")
-
-    case SalasTematicas.publicar(sala, u.nombre, texto) do
-      :ok -> IO.puts("Mensaje enviado a sala #{sala}.")
-      {:error, r} -> IO.puts("Error al enviar: #{inspect(r)}")
-    end
-  end
-
-  defp escuchar_sala(_sala, 0, _usuario), do: IO.puts("Fin de la sala.\n")
-
-  defp escuchar_sala(sala, segundos, usuario) when segundos > 0 do
-    receive do
-      {:sala_msg, sala_rec, m} ->
-        IO.puts("[#{m.fecha_iso}] [#{sala_rec}] #{m.usuario}: #{m.texto}")
-        escuchar_sala(sala, segundos, usuario)
-    after
-      1_000 ->
-        escuchar_sala(sala, segundos - 1, usuario)
-    end
-  end
-
-  # ===== I/O =====
-  defp prompt(label) do
-    case IO.gets(:stdio, label) do
-      :eof -> ""
-      nil -> ""
-      data -> data |> to_string() |> String.trim()
-    end
+  defp procesar_entrada(texto) do
+    send(@servicio_remoto, {:mensaje, self_registered(), texto})
+    :continuar
   end
 end
