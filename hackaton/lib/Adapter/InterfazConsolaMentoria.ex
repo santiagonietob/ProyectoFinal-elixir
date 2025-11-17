@@ -3,6 +3,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   alias HackathonApp.Service.{EquipoServicio, ProyectoServicio, Autorizacion}
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
+  alias HackathonApp.Adapter.InterfazConsolaChat
 
   # ====== Punto de entrada ======
   def iniciar do
@@ -24,6 +25,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     IO.puts("6) Ver mensajes recientes de un equipo")
     IO.puts("7) Enviar mensaje al equipo (consulta)")
     IO.puts("8) Modo comandos (/help, /teams, /project...)")
+    IO.puts("9) Chat en tiempo real (canal general)")
     IO.puts("0) Volver")
 
     case prompt("> ") do
@@ -57,6 +59,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
       "8" ->
         HackathonApp.Adapter.ComandosCLI.iniciar()
+        loop(u)
+
+      "9" ->
+        InterfazConsolaChat.iniciar()
         loop(u)
 
       "0" ->

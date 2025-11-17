@@ -5,6 +5,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Service.Autorizacion
   alias HackathonApp.Session
   alias HackathonApp.Adapter.AvancesCliente
+  alias HackathonApp.Adapter.InterfazConsolaChat
 
   # ====== ENTRADA ======
   def iniciar do
@@ -22,6 +23,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           IO.puts("5) Listar por estado")
           IO.puts("6) Suscribirse a avances (tiempo real)")
           IO.puts("7) Modo comandos (/help, /teams, /project...)")
+          IO.puts("8) Chat en tiempo real (canal general)")
           IO.puts("0) Volver")
 
           case ask("> ") do
@@ -51,6 +53,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
             "7" ->
               HackathonApp.Adapter.ComandosCLI.iniciar()
+              iniciar()
+
+
+            "8" ->
+              InterfazConsolaChat.iniciar()
               iniciar()
 
             "0" ->
