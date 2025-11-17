@@ -31,15 +31,16 @@ defmodule HackathonApp do
       # AJUSTA ESTE NOMBRE AL QUE USES EN EL SERVIDOR
       # ej: elixir --name nodoservidor@192.168.157.250 -S mix run --no-halt
       :"nodoservidor@192.168.157.250" ->
-        children ++ [
-          %{
-            id: :chat_servidor,
-            start: {Task, :start_link, [fn -> HackathonApp.Adapter.ChatServidor.main() end]},
-            restart: :permanent,
-            shutdown: 5_000,
-            type: :worker
-          }
-        ]
+        children ++
+          [
+            %{
+              id: :chat_servidor,
+              start: {Task, :start_link, [fn -> HackathonApp.Adapter.ChatServidor.main() end]},
+              restart: :permanent,
+              shutdown: 5_000,
+              type: :worker
+            }
+          ]
 
       # En los demás nodos (clientes) no se arranca el servidor de chat
       _ ->

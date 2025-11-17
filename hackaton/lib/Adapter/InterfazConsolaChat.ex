@@ -64,9 +64,24 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   # ═══════════════════════════════════════════════════════════
 
   defp registrar_servicio() do
-    Process.register(self(), @nombre_servicio_local)
-    :ok
+  case Process.whereis(@nombre_servicio_local) do
+    nil ->
+      # Nadie está usando el nombre, lo registramos
+      Process.register(self(), @nombre_servicio_local)
+
+    pid when pid == self() ->
+      # Este mismo proceso ya está registrado, no hacemos nada
+      :ok
+
+    _otro_pid ->
+      # Había otro proceso viejo registrado, lo limpiamos y registramos este
+      Process.unregister(@nombre_servicio_local)
+      Process.register(self(), @nombre_servicio_local)
   end
+
+  :ok
+end
+
 
   defp establecer_conexion(:ok, nombre) do
     case Node.connect(@nodo_remoto) do

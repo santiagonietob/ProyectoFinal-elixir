@@ -55,7 +55,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               HackathonApp.Adapter.ComandosCLI.iniciar()
               iniciar()
 
-
             "8" ->
               InterfazConsolaChat.iniciar()
               iniciar()
@@ -199,12 +198,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   defp loop_listen(proyecto_id) do
     receive do
       {:avance, a} ->
-        t   = a[:timestamp] || a[:fecha_iso] || "-"
-        msg = a[:mensaje]   || a[:contenido] || "(sin contenido)"
+        t = a[:timestamp] || a[:fecha_iso] || "-"
+        msg = a[:mensaje] || a[:contenido] || "(sin contenido)"
 
         IO.puts("""
 
-[AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}
+        [AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}
         """)
 
         loop_listen(proyecto_id)
