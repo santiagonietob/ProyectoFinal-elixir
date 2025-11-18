@@ -144,23 +144,24 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   # ═══════════════════════════════════════════════════════════
 
   defp bucle_lectura(nombre) do
-  entrada =
-    case IO.gets("") do
-      :eof -> "/salir"      # Se cerró la entrada estándar
-      nil  -> "/salir"      # No hay más input
-      data -> String.trim(data)
+    entrada =
+      case IO.gets("") do
+        # Se cerró la entrada estándar
+        :eof -> "/salir"
+        # No hay más input
+        nil -> "/salir"
+        data -> String.trim(data)
+      end
+
+    case procesar_entrada(entrada) do
+      :continuar ->
+        bucle_lectura(nombre)
+
+      :salir ->
+        send(self_registered(), :salir)
+        :ok
     end
-
-  case procesar_entrada(entrada) do
-    :continuar ->
-      bucle_lectura(nombre)
-
-    :salir ->
-      send(self_registered(), :salir)
-      :ok
   end
-end
-
 
   defp bucle_receptor() do
     receive do
