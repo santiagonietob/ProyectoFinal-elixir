@@ -28,10 +28,8 @@ defmodule HackathonApp do
     )
   end
 
-  # Solo el nodo servidor levanta el servidor de avances
   defp maybe_add_avances_servidor(children) do
     case node() do
-      # AJUSTA ESTE NOMBRE AL QUE USAS COMO SERVIDOR
       :"nodoservidor@192.168.11.103" ->
         children ++
           [
@@ -43,7 +41,6 @@ defmodule HackathonApp do
     end
   end
 
-  # Tu función existente para ChatServidor, ajustada igual:
   defp maybe_add_chat_servidor(children) do
     case node() do
       :"nodoservidor@192.168.11.103" ->

@@ -14,3 +14,4 @@ id,nombre,correo,rol,salt,hash
 13,lo,lo,participante,CV2iw3VlcTcyx7H3A+vGUg==,cc1cf6291475379d5a4b5456b2fca31461e302459a917a36ed82642ed3980dfa
 14,,¤@,participante,zUtUyJDs/niotiwCWKN1JA==,55648e92bee168f4f62e555f5a025c128d58a395e404ecac2db2682b199b986d
 15,l,l,participante,DZ0qSWxTXM0pOUhFEL8eJg==,c392590b397548d5b7bc314084f73f0b9e618c0824cc8b19f0a6b587b6a8efa7
+16,Rodri,rodriguez@gmail.com,participante,vHoc2UCIyNA12NYyKk4P1g==,637badfd534de052a457eeb7ccc0bcb8e18bac967b71720c16bef0b5f87d828d

@@ -57,7 +57,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
 
   defp registrar_y_login do
     nombre = prompt("Nombre: ")
-    correo = prompt("Correo: ")
+    correo = solicitar_correo_valido()
     rol = prompt("Rol (participante|mentor|organizador): ")
     pass = prompt("Contraseña: ")
 
@@ -66,8 +66,45 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
         IO.puts(IO.ANSI.green() <> "Registro exitoso. Ahora inicia sesión." <> IO.ANSI.reset())
         login()
 
-      {:error, m} ->
-        IO.puts(IO.ANSI.red() <> "Error: " <> m <> IO.ANSI.reset())
+      {:error, errors} when is_map(errors) ->
+        errores =
+          errors
+          |> Enum.map(fn {k, v} ->
+            key = if is_atom(k), do: Atom.to_string(k), else: to_string(k)
+            "#{key}: #{v}"
+          end)
+          |> Enum.join("\n")
+
+        IO.puts(IO.ANSI.red() <> "No se pudo registrar:\n" <> errores <> IO.ANSI.reset())
+        {:error, errors}
+
+      {:error, other} ->
+        IO.puts(IO.ANSI.red() <> "Error: " <> to_string(other) <> IO.ANSI.reset())
+        {:error, other}
+    end
+  end
+
+  # solicita el correo hasta que pase las validaciones básicas
+  defp solicitar_correo_valido do
+    regex = ~r/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/
+
+    correo = prompt("Correo: ") |> String.trim()
+
+    cond do
+      correo == "" ->
+        IO.puts(IO.ANSI.red() <> "El correo es obligatorio" <> IO.ANSI.reset())
+        solicitar_correo_valido()
+
+      not String.contains?(correo, "@") ->
+        IO.puts(IO.ANSI.red() <> "El correo debe contener @" <> IO.ANSI.reset())
+        solicitar_correo_valido()
+
+      not Regex.match?(regex, correo) ->
+        IO.puts(IO.ANSI.red() <> "Formato de correo inválido" <> IO.ANSI.reset())
+        solicitar_correo_valido()
+
+      true ->
+        correo
     end
   end
 
