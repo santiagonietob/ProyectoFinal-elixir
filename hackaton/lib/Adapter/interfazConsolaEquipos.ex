@@ -75,7 +75,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
       {:ok, nombre, id, borradas} ->
         IO.puts(
           IO.ANSI.green() <>
-            "✔️ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}" <>
+            "Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}" <>
             IO.ANSI.reset()
         )
 
