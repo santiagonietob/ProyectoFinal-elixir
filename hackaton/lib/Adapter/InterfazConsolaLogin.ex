@@ -55,16 +55,22 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     end
   end
 
+  # Reescrito: solicitar cada campo con validación local; intentar registrar y repetir hasta éxito.
   defp registrar_y_login do
-    nombre = prompt("Nombre: ")
+    do_registrar()
+  end
+
+  defp do_registrar do
+    nombre = solicitar_nombre_valido()
     correo = solicitar_correo_valido()
-    rol = prompt("Rol (participante|mentor|organizador): ")
-    pass = prompt("Contraseña: ")
+    rol = solicitar_rol_valido()
+    pass = solicitar_password_valido()
 
     case UsuarioServicio.registrar(nombre, correo, rol, pass) do
       {:ok, _u} ->
         IO.puts(IO.ANSI.green() <> "Registro exitoso. Ahora inicia sesión." <> IO.ANSI.reset())
         login()
+        :ok
 
       {:error, errors} when is_map(errors) ->
         errores =
@@ -76,11 +82,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
           |> Enum.join("\n")
 
         IO.puts(IO.ANSI.red() <> "No se pudo registrar:\n" <> errores <> IO.ANSI.reset())
-        {:error, errors}
+
+        do_registrar()
 
       {:error, other} ->
         IO.puts(IO.ANSI.red() <> "Error: " <> to_string(other) <> IO.ANSI.reset())
-        {:error, other}
+        do_registrar()
     end
   end
 
@@ -105,6 +112,60 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
 
       true ->
         correo
+    end
+  end
+
+  # Solicitar nombre hasta que cumpla reglas básicas
+  defp solicitar_nombre_valido do
+    nombre = prompt("Nombre: ") |> String.trim()
+
+    cond do
+      nombre == "" ->
+        IO.puts(IO.ANSI.red() <> "El nombre es obligatorio" <> IO.ANSI.reset())
+        solicitar_nombre_valido()
+
+      String.length(nombre) < 2 ->
+        IO.puts(IO.ANSI.red() <> "El nombre debe tener al menos 2 caracteres" <> IO.ANSI.reset())
+        solicitar_nombre_valido()
+
+      not Regex.match?(~r/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u, nombre) ->
+        IO.puts(IO.ANSI.red() <> "El nombre solo puede contener letras y espacios" <> IO.ANSI.reset())
+        solicitar_nombre_valido()
+
+      true ->
+        nombre
+    end
+  end
+
+  # Nuevo: solicitar rol válido
+  defp solicitar_rol_valido do
+    rol = prompt("Rol (participante|mentor|organizador): ") |> String.trim() |> String.downcase()
+
+    allowed = ["participante", "mentor", "organizador"]
+
+    if rol in allowed do
+      rol
+    else
+      IO.puts(IO.ANSI.red() <> "Rol inválido. Elija participante, mentor u organizador." <> IO.ANSI.reset())
+      solicitar_rol_valido()
+    end
+  end
+
+  # Nuevo: solicitar contraseña hasta que cumpla reglas básicas
+  defp solicitar_password_valido do
+    pass = prompt("Contraseña: ")
+
+    cond do
+      pass == "" ->
+        IO.puts(IO.ANSI.red() <> "La contraseña es obligatoria" <> IO.ANSI.reset())
+        solicitar_password_valido()
+
+      String.length(pass) < 6 ->
+        IO.puts(IO.ANSI.red() <> "La contraseña debe tener al menos 6 caracteres" <> IO.ANSI.reset())
+        solicitar_password_valido()
+
+      true ->
+        pass
     end
   end
 
