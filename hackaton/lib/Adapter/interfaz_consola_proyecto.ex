@@ -36,9 +36,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
             IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset()
           )
 
-          IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
-          IO.puts( "10) Menú anterior\n" )
-          IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+          IO.puts("10) Menú anterior\n")
+          IO.puts(IO.ANSI.green() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
           case ask("> ") do
             "1" ->
@@ -79,7 +79,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
             "10" ->
               IO.puts("Volviendo al menú anterior...")
-             InterfazConsolaEquipos.iniciar()
+              InterfazConsolaEquipos.iniciar()
 
             "0" ->
               IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
@@ -104,6 +104,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
       %{id: uid, rol: rol} ->
         if Autorizacion.can?(rol, :registrar_proyecto) do
           tit = ask("Título del proyecto: ")
+          desc = ask("Descripción de la idea: ")
           cat = ask("Categoría (web|movil|ia|datos|iot|otros): ")
 
           case EquipoServicio.buscar_equipo_por_usuario(uid) do
@@ -115,8 +116,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               )
 
             %{id: equipo_id} ->
-              case ProyectoServicio.crear(equipo_id, tit, cat) do
-                {:ok, p} -> print_proyecto_creado(p)
+              case ProyectoServicio.crear(tit, desc, cat, equipo_id) do
+                {:ok, p} -> print_proyecto_creado(p, desc)
                 {:error, m} -> IO.puts(IO.ANSI.red() <> "Error: " <> m <> IO.ANSI.reset())
               end
           end
@@ -274,7 +275,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
     _listener =
       spawn(fn ->
-        # este proceso es el que tendrá el receive
+
         case AvancesCliente.suscribirse(id, self()) do
           :ok ->
             IO.puts(
@@ -297,11 +298,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
     :ok
   end
 
-  # proceso que escucha de forma indefinida los mensajes {:avance, a}
+
   defp loop_listen(proyecto_id) do
     receive do
       {:avance, a} ->
-        # puede venir como atom o como string, por si acaso
+
         pid_avance = a[:proyecto_id] || a["proyecto_id"]
 
         if pid_avance == proyecto_id do
@@ -347,7 +348,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   end
 
   defp safe_listar do
-    # Soporta wrapper {:ok, lista} o listar/0 que devuelve lista
+
     with {:ok, xs} <- try_listar_proyectos() do
       {:ok, xs}
     else
@@ -369,20 +370,19 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
     IO.gets("") |> to_str()
   end
 
-  defp print_proyecto_creado(p) do
+  defp print_proyecto_creado(p, desc) do
     IO.puts("\n" <> IO.ANSI.green() <> "Proyecto registrado correctamente." <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "ID: #{p.id}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Equipo ID: #{p.equipo_id}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Título: #{p.titulo}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Categoría: #{p.categoria}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "ID de proyecto: #{p.id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "ID de equipo:   #{p.equipo_id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Título:         #{p.titulo}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Descripción:    #{desc}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Categoría:      #{p.categoria}" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.light_white() <> "Estado inicial: #{p.estado}" <> IO.ANSI.reset())
 
     IO.puts(
       IO.ANSI.light_white() <> "Fecha de registro: #{p.fecha_registro}\n" <> IO.ANSI.reset()
     )
   end
-
-
 
   defp ask_int(p), do: ask(p) |> String.to_integer()
   defp to_str(nil), do: ""
@@ -402,7 +402,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
       "progreso" -> "en_progreso"
       "done" -> "entregado"
       "completado" -> "entregado"
-      # compatibilidad antigua
       "archivado" -> "entregado"
       other -> other
     end

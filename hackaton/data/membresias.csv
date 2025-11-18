@@ -3,3 +3,6 @@ usuario_id,equipo_id,rol_en_equipo
 7,1,miembro
 10,2,miembro
 11,2,miembro
+21,3,miembro
+21,4,miembro
+21,5,miembro

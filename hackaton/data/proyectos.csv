@@ -8,3 +8,6 @@ id,equipo_id,titulo,categoria,estado,fecha_registro
 3,2,Plataforma,ia,idea,2025-11-09T03:56:57.775000Z
 4,2,Prueba,ia,idea,2025-11-09T04:21:07.483000Z
 
+5,3,Consola,ia,idea,2025-11-18T16:52:57.286000Z
+6,3,Mix,ia,idea,2025-11-18T17:03:14.731000Z
+7,3,Canal,ia,idea,2025-11-18T17:11:08.341000Z
