@@ -1,6 +1,78 @@
-# Manual de Usuario — Hackathon App
+# Manual de Usuario SIMPLE — Hackathon App
 
 Bienvenido a Hackathon App. Este manual explica de forma clara y práctica cómo instalar, iniciar sesión y usar la aplicación desde la consola, según su rol (organizador, participante o mentor).
+
+REQUISITOS
+----------
+- Elixir 1.14 o superior
+- Mix
+- Archivos CSV en la carpeta /data
+- Red local (si usará chat distribuido entre PCs)
+
+INICIO
+------
+Para arrancar el sistema:
+
+    mix run --no-halt
+
+MENÚ PRINCIPAL
+--------------
+1. Iniciar sesión
+2. Registrarme
+0. Salir
+
+ROLES
+-----
+- Participante
+- Mentor
+- Organizador
+
+Cada rol tiene permisos distintos.
+
+FUNCIONALIDADES POR ROL
+------------------------
+1. Organizador:
+- Registrar usuarios
+- Crear equipos
+- Unir usuarios
+- Listar, eliminar y administrar equipos
+- Usar modo comandos (/help, /teams)
+
+2. Participante:
+- Registrar proyecto
+- Cambiar estado
+- Agregar avances
+- Suscribirse a avances en tiempo real
+- Entrar a chat distribuido
+- Usar modo comandos
+
+3. Mentor:
+- Ver equipos y proyectos
+- Enviar mensajes de mentoría
+- Ver avances recientes
+- Usar chat y modo comandos
+
+CHAT DISTRIBUIDO
+----------------
+Para conectarse:
+
+    8) Chat en tiempo real (desde menú de proyectos o mentoría)
+
+REQUISITOS:
+- Debes saber la IP o nombre del nodo servidor
+- Ambos deben tener la misma cookie Erlang
+
+COMANDOS DISPONIBLES
+--------------------
+/help
+/teams
+/project <nombre>
+/join <equipo>
+/chat <equipo>
+/back
+/exit
+
+# Manual de Usuario COMPLETO — Hackathon App
 
 ## Contenido
 
@@ -446,6 +518,7 @@ Throughput: 476 msg/s
    - Comprobar formato de datos
 
 ## Licencia y Créditos
+
 
 ### Autores
 
