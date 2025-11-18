@@ -64,24 +64,23 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   # ═══════════════════════════════════════════════════════════
 
   defp registrar_servicio() do
-  case Process.whereis(@nombre_servicio_local) do
-    nil ->
-      # Nadie está usando el nombre, lo registramos
-      Process.register(self(), @nombre_servicio_local)
+    case Process.whereis(@nombre_servicio_local) do
+      nil ->
+        # Nadie está usando el nombre, lo registramos
+        Process.register(self(), @nombre_servicio_local)
 
-    pid when pid == self() ->
-      # Este mismo proceso ya está registrado, no hacemos nada
-      :ok
+      pid when pid == self() ->
+        # Este mismo proceso ya está registrado, no hacemos nada
+        :ok
 
-    _otro_pid ->
-      # Había otro proceso viejo registrado, lo limpiamos y registramos este
-      Process.unregister(@nombre_servicio_local)
-      Process.register(self(), @nombre_servicio_local)
+      _otro_pid ->
+        # Había otro proceso viejo registrado, lo limpiamos y registramos este
+        Process.unregister(@nombre_servicio_local)
+        Process.register(self(), @nombre_servicio_local)
+    end
+
+    :ok
   end
-
-  :ok
-end
-
 
   defp establecer_conexion(:ok, nombre) do
     case Node.connect(@nodo_remoto) do
@@ -145,17 +144,23 @@ end
   # ═══════════════════════════════════════════════════════════
 
   defp bucle_lectura(nombre) do
-    entrada = IO.gets("") |> String.trim()
-
-    case procesar_entrada(entrada) do
-      :continuar ->
-        bucle_lectura(nombre)
-
-      :salir ->
-        send(self_registered(), :salir)
-        :ok
+  entrada =
+    case IO.gets("") do
+      :eof -> "/salir"      # Se cerró la entrada estándar
+      nil  -> "/salir"      # No hay más input
+      data -> String.trim(data)
     end
+
+  case procesar_entrada(entrada) do
+    :continuar ->
+      bucle_lectura(nombre)
+
+    :salir ->
+      send(self_registered(), :salir)
+      :ok
   end
+end
+
 
   defp bucle_receptor() do
     receive do
