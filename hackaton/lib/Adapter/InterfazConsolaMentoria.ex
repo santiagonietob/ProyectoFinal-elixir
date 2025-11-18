@@ -34,8 +34,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     IO.puts(IO.ANSI.green() <> "6) Ver mensajes recientes de un equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "7) Enviar mensaje al equipo (consulta)" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
     case prompt("> ") do
       "1" ->

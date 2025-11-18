@@ -1,3 +1,6 @@
 id,nombre,descripcion,tema,activo
 1,Barca,futbol,deportes,true
 2,Data,Equipo de analisis,IA,true
+3,Consola,Prueba :9,ia,true
+4,Mix,Pruebas,ia,true
+5,Canal,Canal de prueba,ia,true
