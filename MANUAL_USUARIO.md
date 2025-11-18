@@ -1,3 +1,255 @@
+# Manual de Usuario — Hackathon App
+
+Bienvenido a Hackathon App. Este manual explica de forma clara y práctica cómo instalar, iniciar sesión y usar la aplicación desde la consola, según su rol (organizador, participante o mentor).
+
+## Contenido
+
+- Introducción
+- Requisitos
+- Instalación
+- Inicio de sesión y registro
+- Navegación según rol
+- Interfaz del organizador
+- Interfaz del participante
+- Interfaz del mentor
+- Uso del chat y salas temáticas
+- Modo comandos (con ejemplos)
+- Solución de problemas comunes
+
+---
+
+## Introducción
+
+Hackathon App es una aplicación de consola desarrollada en Elixir que facilita la gestión de un hackathon: gestión de usuarios, equipos, proyectos, registro de avances y comunicación en tiempo real (chat) entre participantes, mentores y organizadores. Está pensada para ejecutarse tanto en un solo equipo como en modo distribuido entre varios nodos Elixir.
+
+## Requisitos
+
+- Elixir y Erlang instalados (compatible con versiones comunes; use la versión que soporta su `mix.exs`).
+- Git (opcional, para clonar el repositorio).
+- Permisos de lectura/escritura en la carpeta del proyecto (para archivos CSV).
+- En modo distribuido: conectividad de red entre nodos y cookie compartida.
+
+## Instalación paso a paso
+
+1. Clonar el repositorio (si corresponde):
+
+```bash
+git clone <repo-url>
+cd ProyectoFinal-elixir/hackaton
+```
+
+2. Instalar dependencias y compilar (si hay dependencias):
+
+```bash
+mix deps.get
+mix compile
+```
+
+3. Archivos CSV: Si no existen, la aplicación crea automáticamente:
+
+- `usuarios.csv`
+- `equipos.csv`
+- `proyectos.csv`
+- `avances.csv`
+- `mensajes.csv`
+- `membresias.csv`
+
+4. Iniciar la aplicación en modo local:
+
+```bash
+mix run --no-halt
+```
+
+5. Para ejecución distribuida, ver la sección correspondiente más abajo.
+
+## Inicio de sesión y registro
+
+Al iniciar la aplicación, verá el prompt de `InterfazConsolaLogin`. Opciones típicas:
+
+- Iniciar sesión (login)
+- Registrarse (crear cuenta)
+
+Registro (pasos generales):
+
+1. Seleccione `Registrarse` en la pantalla de login.
+2. Proporcione: `nombre`, `username`, `contraseña` y `rol` (e.g., `participante`, `mentor`, `organizador`).
+3. La contraseña se almacena de forma segura usando `salt` + hash SHA256; la aplicación guarda el `salt` y el `password_hash` en `usuarios.csv`.
+
+Inicio de sesión (pasos generales):
+
+1. Seleccione `Iniciar sesión` e ingrese `username` y `contraseña`.
+2. Si las credenciales son correctas, accederá a la interfaz correspondiente a su rol.
+
+Si olvida la contraseña: actualmente no hay flujo de recuperación automatizado; contacte al organizador para reiniciar su cuenta.
+
+## Navegación según el rol
+
+La navegación en la consola se maneja mediante menús y comandos. Dependiendo del rol, se mostrarán opciones distintas.
+
+- Organizador: acceso completo.
+- Participante: acceso a creación de proyectos, avances y chat.
+- Mentor: acceso a revisión y retroalimentación.
+
+En cualquier momento puede usar `/help` para ver los comandos disponibles.
+
+## Interfaz del organizador
+
+El organizador puede:
+
+- Crear, editar y eliminar usuarios.
+- Crear y gestionar equipos.
+- Crear y asignar proyectos a equipos.
+- Coordinar mentorías.
+- Moderar y participar en el chat general y salas temáticas.
+
+Acciones comunes (ejemplos):
+
+- `Usuarios -> Crear usuario` (ingrese datos y rol).
+- `Equipos -> Crear equipo` (nombre, descripción).
+- `Proyectos -> Crear proyecto` (asociar a equipo, estado inicial).
+- `Chat -> Moderar mensajes` (eliminar o advertir usuarios si aplica).
+
+El menú de organizador está expuesto por `InterfazConsola` principal.
+
+## Interfaz del participante
+
+Funciones principales:
+
+- Crear proyectos personales o de equipo.
+- Registrar avances en proyectos (`ProyectoServicio.create_avance`).
+- Cambiar estados de su proyecto (ej. `en progreso`, `finalizado`).
+- Unirse a equipos y ver miembros.
+- Participar en chats de equipo y salas temáticas.
+
+Flujo típico para registrar un avance:
+
+1. Navegar a `Proyectos`.
+2. Seleccionar el proyecto objetivo.
+3. Elegir `Registrar avance` y describir el avance.
+4. El avance se persiste en `avances.csv` y se difunde en tiempo real vía `AvancesServidor`.
+
+## Interfaz del mentor
+
+El mentor tiene opciones orientadas a revisión y feedback:
+
+- Listar proyectos asignados.
+- Revisar avances recientes y dejar comentarios.
+- Comunicarse con participantes por chat.
+
+Dependiendo de la implementación de `InterfazConsolaMentoria`, el mentor puede marcar tareas como revisadas o solicitar cambios.
+
+## Cómo usar el chat
+
+El chat permite comunicación en:
+
+- Canal general (`CanalGeneral`).
+- Salas temáticas (`SalasTematicas`).
+- Chats por equipo.
+
+Uso básico:
+
+1. Desde el menú, seleccione `Chat` o use el comando `/chat <equipo>`.
+2. Escriba su mensaje y presione Enter.
+3. Los mensajes se muestran en la consola y se guardan en `mensajes.csv`.
+
+Comportamiento distribuido:
+
+- Si su instancia está conectada a otros nodos (mediante `Node.connect`), los mensajes se propagan entre nodos y todos los participantes conectados verán los mensajes en tiempo real.
+
+## Cómo usar las salas temáticas
+
+Las salas temáticas son canales específicos por tema (ej. `IA`, `Frontend`, `Backend`). Para unirse o enviar mensajes:
+
+- Listar salas: `/rooms` o desde menú `Salas`.
+- Unirse: comando o menú `Unirse a sala`.
+- Enviar mensaje: seleccione la sala y envíe el texto.
+
+Los mensajes en salas siguen el mismo mecanismo de difusión y persistencia que el canal general.
+
+## Modo comandos (guía para usuarios)
+
+La aplicación soporta comandos rápidos que empiezan con `/`.
+
+Comandos más útiles:
+
+- `/help` — muestra comandos y uso.
+- `/teams` — lista equipos disponibles.
+- `/join <equipo>` — unirse a un equipo.
+- `/project <equipo>` — ver proyectos del equipo.
+- `/chat <equipo>` — entrar al chat del equipo.
+- `/back` — volver al nivel de menú anterior.
+- `/exit` — cerrar sesión o salir de la aplicación.
+
+Ejemplos prácticos:
+
+1. Unirse a un equipo llamado `Alpha`:
+
+```
+/join Alpha
+```
+
+2. Entrar al chat del equipo `Alpha`:
+
+```
+/chat Alpha
+```
+
+3. Ver ayuda rápida:
+
+```
+/help
+```
+
+## Ejecución en modo distribuido (para usuarios avanzados)
+
+Si desea usar la aplicación en modo distribuido (varios equipos conectados entre sí):
+
+1. En una máquina que actúe como servidor, inicie:
+
+```powershell
+elixir --name nodoservidor@IP --cookie c -S mix run --no-halt
+```
+
+2. En otras máquinas (clientes), inicie con names distintos y la misma cookie:
+
+```powershell
+elixir --name cliente1@IP --cookie c -S mix run --no-halt
+```
+
+3. En los clientes, conecte al servidor (si no se conectan automáticamente):
+
+```elixir
+Node.connect(:'nodoservidor@IP')
+```
+
+Nota: Reemplace `IP` por la dirección adecuada y asegúrese de que la red permita conexión entre los puertos Erlang/Elixir.
+
+## Solución de problemas comunes
+
+- La aplicación no crea CSV o no tiene permisos:
+  - Verifique permisos de escritura en la carpeta `hackaton/data`.
+
+- Fallo en login:
+  - Verifique que el `username` exista en `usuarios.csv`.
+  - Asegúrese de usar la contraseña correcta; la aplicación compara hash SHA256 con salt.
+
+- Problemas al conectar nodos:
+  - Compruebe que la cookie sea la misma (`--cookie c`).
+  - Verifique la resolución de nombres/IP y puertos.
+  - Desde la consola Elixir, use `Node.list()` para ver nodos conectados.
+
+- Mensajes no se difunden:
+  - Confirme que `ChatServidor` esté registrado y corriendo.
+  - Revise logs de la aplicación para errores al enviar mensajes.
+
+## Preguntas frecuentes (FAQ)
+
+- ¿Puedo usar esta aplicación sin conocer Elixir? Sí — la interacción es por consola y las instrucciones aquí son suficientes para operar como usuario.
+- ¿Se pueden migrar los CSV a una base de datos? Sí — `PersistenciaCSV` es un adaptador; se puede implementar otro adaptador para una BD relacional sin cambiar la lógica de dominio.
+
+---
+
+Si necesita más ayuda o desea que se añadan funcionalidades (por ejemplo recuperación de contraseña, interfaz web, o integración con bases de datos), abra un issue o contacte al equipo de desarrollo.
 # ProyectoFinal-elixir
 # Manual de Usuario - Hackathon App
 

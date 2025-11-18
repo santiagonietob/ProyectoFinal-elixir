@@ -7,3 +7,4 @@ id,nombre,correo,rol,salt,hash
 6,michael,ma@gmail.com,participante,Rsh0ivKfCi1mTu8r+AY0hQ==,18aefefc90a4b4c909924b9305c1b7aa9dafa25e7daf2281ebffa813233ea71d
 7,maicol,nose,organizador,yXgPd8+bPAMgpR4FEeypNA==,3e904bfd53aad8a015c68adee1619c08e5ba9809e037f5bdb505fa87b23a87a7
 8,micha,ni,participante,yjS6NWvmROw/G8VskPpvOw==,8123f09ab913cee673c1c2256f8a1792a6fbfe4dd861268a82346726b5edb13a
+9,ola5,ola5,mentor,GVotcNNWpBzU0pBV0gmuHQ==,f7d868d25c60304f7728bb4d9671b9232c14b25195ac222783bbd1cd1ba23346
