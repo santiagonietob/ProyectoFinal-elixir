@@ -45,20 +45,25 @@ defmodule HackathonApp.Adapter.ComandosCLI do
 
   # ===== Router de comandos (cada dispatch devuelve :cont o :back) =====
   defp dispatch(""), do: :cont
+defp dispatch("/help") do
+  IO.puts("""
+  Comandos:
+    /teams                    -> Listar equipos
+    /project <equipo>         -> Ver proyecto de un equipo
+    /join <equipo>            -> Unirse a un equipo (solo participantes)
+    /chat <equipo>            -> Entrar al canal del equipo (solo participantes, 15s)
 
-  defp dispatch("/help") do
-    IO.puts("""
-    Comandos:
-      /teams                  -> Listar equipos
-      /project <equipo>       -> Ver proyecto de un equipo
-      /join <equipo>          -> Unirse a un equipo (solo participantes)
-      /chat <equipo>          -> Entrar al canal del equipo (solo participantes, 15s)
-      /back | /volver          -> Cerrar sesión
-      /exit                   -> Cerrar aplicación
-    """)
+    /sala <nombre>            -> Suscribirse a una sala temática y escuchar mensajes
+    /say <sala> <mensaje>     -> Enviar mensaje a una sala temática
+    /nodetest                 -> Ver nodo actual y nodos conectados
 
-    :cont
-  end
+    /back | /volver           -> Volver al menú anterior
+    /exit                     -> Cerrar aplicación
+  """)
+
+  :cont
+end
+
 
   # salir del modo comandos (cerrar sesión)
   defp dispatch("/back"), do: :back
@@ -69,6 +74,11 @@ defmodule HackathonApp.Adapter.ComandosCLI do
     IO.puts("Cerrando aplicación...")
     System.halt(0)
   end
+  defp dispatch("/nodetest") do
+  IO.puts("Nodo actual: #{inspect(node())}")
+  IO.puts("Nodos conectados: #{inspect(Node.list())}")
+  :cont
+end
 
   defp dispatch("/teams") do
     IO.puts("\n--- Equipos registrados ---")
@@ -94,6 +104,46 @@ defmodule HackathonApp.Adapter.ComandosCLI do
         IO.puts("  categoría: #{p.categoria}")
         IO.puts("  estado:    #{p.estado}")
         IO.puts("  creado:    #{p.fecha_registro}")
+    end
+
+    :cont
+  end
+
+  defp dispatch(<<"/sala ", rest::binary>>) do
+    sala = String.trim(rest)
+
+    spawn(fn ->
+      HackathonApp.Adapter.SalasTematicas.suscribirse(sala)
+      IO.puts("Te uniste a la sala temática #{sala}. Escuchando mensajes...")
+
+      listen_sala(sala)
+    end)
+
+    :cont
+  end
+
+  defp listen_sala(sala) do
+    receive do
+      {:sala_msg, ^sala, payload} ->
+        IO.puts("[#{payload.fecha_iso}] #{payload.usuario}: #{payload.texto}")
+        listen_sala(sala)
+
+      _otro ->
+        # Ignora mensajes raros y sigue escuchando
+        listen_sala(sala)
+    end
+  end
+
+  defp dispatch(<<"/say ", rest::binary>>) do
+    [sala | texto_lista] = String.split(rest, " ")
+    texto = Enum.join(texto_lista, " ")
+
+    case HackathonApp.Session.current() do
+      %{nombre: usuario} ->
+        HackathonApp.Adapter.SalasTematicas.publicar(sala, usuario, texto)
+
+      _ ->
+        IO.puts("No hay sesión activa.")
     end
 
     :cont

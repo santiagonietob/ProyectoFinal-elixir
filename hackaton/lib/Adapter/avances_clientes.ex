@@ -9,12 +9,14 @@ defmodule HackathonApp.Adapter.AvancesCliente do
   """
 
   # {proceso_remoto_registrado, nodo_remoto}
-  @servicio_remoto {:servicio_avances, :"nodoservidor@192.168.11.103"}
+  @servicio_remoto {:servicio_avances, :"nodoservidor@192.168.1.28"}
   @nombre_local :servicio_avances
 
   @spec suscribirse(non_neg_integer(), pid()) :: :ok | {:error, term()}
   def suscribirse(proyecto_id, pid \\ self())
-  def suscribirse(proyecto_id, pid) when is_integer(proyecto_id) and proyecto_id > 0 and is_pid(pid) do
+
+  def suscribirse(proyecto_id, pid)
+      when is_integer(proyecto_id) and proyecto_id > 0 and is_pid(pid) do
     case conectar_remoto(elem(@servicio_remoto, 1)) do
       :ok ->
         send({elem(@servicio_remoto, 0), elem(@servicio_remoto, 1)}, {:suscribir, pid})

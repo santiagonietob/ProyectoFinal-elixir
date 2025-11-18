@@ -30,7 +30,7 @@ defmodule HackathonApp do
 
   defp maybe_add_avances_servidor(children) do
     case node() do
-      :"nodoservidor@192.168.11.103" ->
+      :"nodoservidor@192.168.1.28" ->
         children ++
           [
             {HackathonApp.Adapter.AvancesServidor, []}

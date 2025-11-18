@@ -75,8 +75,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         loop(u)
 
       "0" ->
-       IO.puts("Hasta pronto!")
-       InterfazConsolaLogin.iniciar()
+        IO.puts("Hasta pronto!")
+        InterfazConsolaLogin.iniciar()
 
       _ ->
         IO.puts("Opción inválida")

@@ -6,7 +6,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   @nombre_servicio_local :cliente_chat
 
   # Nodo del servidor de chat (la PC donde corre HackathonApp con ChatServidor)
-  @nodo_remoto :"nodoservidor@192.168.11.103"
+  @nodo_remoto :"nodoservidor@192.168.1.28"
 
   # Nombre registrado del servidor de chat en ese nodo
   @servicio_remoto {:chat_servidor, @nodo_remoto}
@@ -220,5 +220,4 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
     send(@servicio_remoto, {:mensaje, self_registered(), texto})
     :continuar
   end
-
 end

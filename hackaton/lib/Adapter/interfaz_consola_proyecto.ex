@@ -9,6 +9,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Adapter.InterfazConsolaChat
   alias HackathonApp.Adapter.InterfazConsolaEquipos
   alias HackathonApp.Adapter.InterfazConsolaLogin
+  alias HackathonApp.Adapter.SalasTematicas
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
   # ====== ENTRADA ======
@@ -37,7 +38,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           )
 
           IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
-          IO.puts( "10) Menú anterior\n" )
+          IO.puts(IO.ANSI.yellow() <> "10) Salas temáticas" <> IO.ANSI.reset())
+
+          IO.puts("11) Menú anterior\n")
           IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
           case ask("> ") do
@@ -78,8 +81,20 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               iniciar()
 
             "10" ->
+              IO.puts("""
+              === Salas temáticas ===
+
+                - Usa:   /sala <nombre>       para unirte a una sala
+                - Usa:   /say <sala> <mensaje> para enviar mensajes a esa sala
+
+              """)
+
+              HackathonApp.Adapter.ComandosCLI.iniciar()
+              iniciar()
+
+            "11" ->
               IO.puts("Volviendo al menú anterior...")
-             InterfazConsolaEquipos.iniciar()
+              InterfazConsolaEquipos.iniciar()
 
             "0" ->
               IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
@@ -272,27 +287,25 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   defp sub_avances do
     id = ask_int("Proyecto ID a suscribirse: ")
 
-    _listener =
-      spawn(fn ->
-        # este proceso es el que tendrá el receive
-        case AvancesCliente.suscribirse(id, self()) do
-          :ok ->
-            IO.puts(
-              IO.ANSI.green() <>
-                "Suscrito al proyecto #{id}. Escuchando avances en segundo plano..." <>
-                IO.ANSI.reset()
-            )
+    spawn(fn ->
+      case AvancesCliente.suscribirse(id) do
+        :ok ->
+          IO.puts(
+            IO.ANSI.green() <>
+              "Suscrito al proyecto #{id}. Escuchando avances en segundo plano..." <>
+              IO.ANSI.reset()
+          )
 
-            loop_listen(id)
+          loop_listen(id)
 
-          {:error, m} ->
-            IO.puts(
-              IO.ANSI.red() <>
-                "Error al suscribirse a avances en listener: #{inspect(m)}" <>
-                IO.ANSI.reset()
-            )
-        end
-      end)
+        {:error, m} ->
+          IO.puts(
+            IO.ANSI.red() <>
+              "Error al suscribirse a avances en listener: #{inspect(m)}" <>
+              IO.ANSI.reset()
+          )
+      end
+    end)
 
     :ok
   end
@@ -381,8 +394,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
       IO.ANSI.light_white() <> "Fecha de registro: #{p.fecha_registro}\n" <> IO.ANSI.reset()
     )
   end
-
-
 
   defp ask_int(p), do: ask(p) |> String.to_integer()
   defp to_str(nil), do: ""
