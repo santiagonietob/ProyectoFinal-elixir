@@ -122,15 +122,26 @@ defmodule HackathonApp.Service.ProyectoServicio do
     pid = to_int(proyecto_id)
     ns = normalizar_estado(nuevo_estado)
 
-    if ns not in @estados,
-      do: {:error, "Estado inválido (usa: idea|en_progreso|entregado)"},
-      else: do_cambiar_estado(pid, ns)
+    if ns not in @estados do
+      {:error, "Estado inválido (usa: idea|en_progreso|entregado)"}
+    else
+      do_cambiar_estado(pid, ns)
+    end
   end
 
   defp do_cambiar_estado(pid, ns) do
     filas = CSV.leer(@proy_csv)
 
-    case Enum.split_with(filas, fn [id | _] -> String.to_integer(id) == pid end) do
+    case Enum.split_with(filas, fn
+           [id | _] ->
+             case Integer.parse(String.trim(id)) do
+               {id_int, ""} -> id_int == pid
+               _ -> false
+             end
+
+           _ ->
+             false
+         end) do
       {[[_id, eq, t, c, _viejo, f] | _], resto} ->
         nueva = [Integer.to_string(pid), eq, t, c, ns, f]
         :ok = CSV.reescribir(@proy_csv, Enum.reverse([nueva | resto]))
