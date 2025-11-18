@@ -14,6 +14,9 @@ defmodule HackathonApp.Service.EquipoServicio do
   @equipos_csv "data/equipos.csv"
   @membresias_csv "data/membresias.csv"
 
+  # Roles válidos dentro de un equipo
+  @roles_validos ~w(miembro lider)
+
   # -------------------------
   # Crear / Listar / Buscar
   # -------------------------
@@ -86,13 +89,13 @@ defmodule HackathonApp.Service.EquipoServicio do
   def listar_equipos_activos, do: listar_todos() |> Enum.filter(& &1.activo)
 
   @doc "Busca equipo por id (entero)."
-  @spec buscar_equipo_por_id(non_neg_integer) :: Equipo.t() | nil
+  @spec buscar_equipo_por_id(non_neg_integer()) :: Equipo.t() | nil
   def buscar_equipo_por_id(equipo_id) do
     Enum.find(listar_todos(), &(&1.id == equipo_id))
   end
 
   @doc "Devuelve [{nombre_equipo, conteo_miembros}] (para /teams)."
-  @spec listar_equipos_con_conteo() :: [{String.t(), non_neg_integer}]
+  @spec listar_equipos_con_conteo() :: [{String.t(), non_neg_integer()}]
   def listar_equipos_con_conteo do
     miembros = CSV.leer(@membresias_csv)
 
@@ -100,7 +103,10 @@ defmodule HackathonApp.Service.EquipoServicio do
     |> Enum.map(fn e ->
       c =
         miembros
-        |> Enum.count(fn [_u, e_id, _rol] -> e_id == Integer.to_string(e.id) end)
+        |> Enum.count(fn [u_id, e_id, _rol] ->
+          # membresias.csv: usuario_id,equipo_id,rol_en_equipo
+          e_id == Integer.to_string(e.id)
+        end)
 
       {e.nombre, c}
     end)
@@ -114,7 +120,7 @@ defmodule HackathonApp.Service.EquipoServicio do
   Une un usuario a un equipo por nombre.
   Valida: rol válido, existencia de equipo y usuario, y no duplicar membresía.
   """
-  @spec unirse_a_equipo(String.t(), non_neg_integer, String.t()) ::
+  @spec unirse_a_equipo(String.t(), non_neg_integer(), String.t()) ::
           {:ok, Equipo.t()} | {:error, String.t()}
   def unirse_a_equipo(nombre_equipo, usuario_id, rol_en_equipo \\ "miembro") do
     rol = rol_en_equipo |> to_string() |> String.downcase()
@@ -148,10 +154,13 @@ defmodule HackathonApp.Service.EquipoServicio do
   end
 
   @doc "Lista las membresías de un equipo por **id**."
-  @spec listar_miembros_por_id(non_neg_integer) :: [Membresia.t()]
+  @spec listar_miembros_por_id(non_neg_integer()) :: [Membresia.t()]
   def listar_miembros_por_id(equipo_id) do
     CSV.leer(@membresias_csv)
-    |> Enum.filter(fn [_u, e, _] -> e == Integer.to_string(equipo_id) end)
+    |> Enum.filter(fn [u_id, e_id, _rol] ->
+      # membresias.csv: usuario_id,equipo_id,rol_en_equipo
+      e_id == Integer.to_string(equipo_id)
+    end)
     |> Enum.map(fn [u_id, e_id, rol] ->
       %Membresia{
         usuario_id: String.to_integer(u_id),
@@ -175,7 +184,7 @@ defmodule HackathonApp.Service.EquipoServicio do
   Retorna: {:ok, nombre, id, cantidad_membresias_borradas} | {:error, motivo}
   """
   @spec eliminar_equipo(String.t() | integer()) ::
-          {:ok, String.t(), non_neg_integer, non_neg_integer} | {:error, String.t()}
+          {:ok, String.t(), non_neg_integer(), non_neg_integer()} | {:error, String.t()}
   def eliminar_equipo(ident) do
     {eq, id} =
       case ident do
@@ -248,58 +257,20 @@ defmodule HackathonApp.Service.EquipoServicio do
     end
   end
 
-  @doc "Lista todos los equipos (sin filtrar)."
-  @spec listar_equipos() :: {:ok, [Equipo.t()]} | {:error, String.t()}
-  def listar_equipos do
-    try do
-      filas = CSV.leer(@equipos_csv)
-
-      equipos =
-        Enum.map(filas, fn
-          # Espera columnas: id,nombre,descripcion,tema,activo
-          [id, nombre, descripcion, tema, activo_str] ->
-            %Equipo{
-              id: id,
-              nombre: nombre,
-              descripcion: descripcion,
-              tema: tema,
-              activo: String.downcase(to_string(activo_str)) in ["true", "1", "sí", "si", "yes"]
-            }
-
-          # Si vienen menos columnas (defensivo)
-          [id, nombre, descripcion, tema] ->
-            %Equipo{id: id, nombre: nombre, descripcion: descripcion, tema: tema, activo: true}
-
-          otra ->
-            # Línea malformada: la ignoramos (o podrías loguearla)
-            _ = otra
-            nil
-        end)
-        |> Enum.reject(&is_nil/1)
-
-      {:ok, equipos}
-    rescue
-      e -> {:error, "No se pudieron leer los equipos: #{Exception.message(e)}"}
-    end
-  end
-
   @doc "Busca el equipo al que pertenece un usuario (por su id)."
   @spec buscar_equipo_por_usuario(integer()) :: Equipo.t() | nil
   def buscar_equipo_por_usuario(usuario_id) do
-    miembros = CSV.leer(@membresias_csv)
+    usuario_str = Integer.to_string(usuario_id)
 
-    case Enum.find(miembros, fn
-           [_id, eq_id, u_id | _] -> u_id == Integer.to_string(usuario_id)
-           _ -> false
-         end) do
-      [_, eq_id, _ | _] ->
-        listar_equipos()
-        |> elem(1)
-        |> Enum.find(&(&1.id == String.to_integer(eq_id)))
+    CSV.leer(@membresias_csv)
+    |> Enum.find_value(fn
+      # membresias.csv: usuario_id,equipo_id,rol_en_equipo
+      [u_id, eq_id, _rol] when u_id == usuario_str ->
+        buscar_equipo_por_id(String.to_integer(eq_id))
 
       _ ->
         nil
-    end
+    end)
   end
 
   @doc "Busca equipo por nombre exacto (tras trim)."

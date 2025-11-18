@@ -1,16 +1,25 @@
 defmodule HackathonApp do
+  @moduledoc """
+  Punto de entrada OTP de la app.
+  Inicia el árbol de supervisión.
+  """
+
   use Application
   alias HackathonApp.Adapter.InterfazConsolaLogin
 
   @impl true
   def start(_type, _args) do
-    IO.puts("\nIniciando HackathonApp...")
+    children = [
+      # Servidor de difusión de avances (proceso simple con receive/loop)
+      %{
+        id: :avances_servidor,
+        start: {Task, :start_link, [fn -> HackathonApp.Adapter.AvancesServidor.iniciar() end]},
+        restart: :permanent,
+        shutdown: 5_000,
+        type: :worker
+      },
 
-    base_children = [
-      # Arranca el servidor de avances como GenServer (usa start_link/1)
-      {HackathonApp.Adapter.AvancesServidor, []},
-
-      # UI: no reiniciar la UI
+      # UI de login en consola (no se reinicia)
       %{
         id: :ui_login,
         start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
@@ -20,31 +29,6 @@ defmodule HackathonApp do
       }
     ]
 
-    children = maybe_add_chat_server(base_children)
-
     Supervisor.start_link(children, strategy: :one_for_one, name: HackathonApp.Supervisor)
-  end
-
-  # Solo el nodo servidor levanta el ChatServidor
-  defp maybe_add_chat_server(children) do
-    case node() do
-      # AJUSTA ESTE NOMBRE AL QUE USES EN EL SERVIDOR
-      # ej: elixir --name nodoservidor@192.168.157.250 -S mix run --no-halt
-      :"nodoservidor@192.168.157.250" ->
-        children ++
-          [
-            %{
-              id: :chat_servidor,
-              start: {Task, :start_link, [fn -> HackathonApp.Adapter.ChatServidor.main() end]},
-              restart: :permanent,
-              shutdown: 5_000,
-              type: :worker
-            }
-          ]
-
-      # En los demás nodos (clientes) no se arranca el servidor de chat
-      _ ->
-        children
-    end
   end
 end

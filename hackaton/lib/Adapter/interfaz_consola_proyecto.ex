@@ -3,9 +3,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   alias HackathonApp.Service.ProyectoServicio
   alias HackathonApp.Service.Autorizacion
+  alias HackathonApp.Service.EquipoServicio
   alias HackathonApp.Session
   alias HackathonApp.Adapter.AvancesCliente
   alias HackathonApp.Adapter.InterfazConsolaChat
+  alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
   # ====== ENTRADA ======
   def iniciar do
@@ -22,8 +24,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           IO.puts("4) Listar por categoría")
           IO.puts("5) Listar por estado")
           IO.puts("6) Suscribirse a avances (tiempo real)")
-          IO.puts("7) Modo comandos (/help, /teams, /project...)")
-          IO.puts("8) Chat en tiempo real (canal general)")
+          IO.puts("7) Enviar consulta a mentores")
+          IO.puts("8) Modo comandos (/help, /teams, /project...)")
+          IO.puts("9) Chat en tiempo real (canal general)")
           IO.puts("0) Volver")
 
           case ask("> ") do
@@ -52,10 +55,14 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               iniciar()
 
             "7" ->
-              HackathonApp.Adapter.ComandosCLI.iniciar()
+              consulta_mentores()
               iniciar()
 
             "8" ->
+              HackathonApp.Adapter.ComandosCLI.iniciar()
+              iniciar()
+
+            "9" ->
               InterfazConsolaChat.iniciar()
               iniciar()
 
@@ -80,7 +87,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           tit = ask("Título del proyecto: ")
           cat = ask("Categoría (web|movil|ia|datos|iot|otros): ")
 
-          case HackathonApp.Service.EquipoServicio.buscar_equipo_por_usuario(uid) do
+          case EquipoServicio.buscar_equipo_por_usuario(uid) do
             nil ->
               IO.puts(
                 "No se encontró un equipo asociado a tu usuario. Únete a uno antes de registrar un proyecto."
@@ -172,6 +179,44 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           listar(proyectos)
         else
           IO.puts("Acceso denegado.")
+        end
+
+      _ ->
+        IO.puts("No hay sesión activa. Inicia sesión primero.")
+    end
+  end
+
+  # ====== CANAL DE CONSULTAS A MENTORES ======
+  defp consulta_mentores do
+    case Session.current() do
+      %{id: uid, rol: rol} ->
+        if Autorizacion.can?(rol, :enviar_mensaje) do
+          case EquipoServicio.buscar_equipo_por_usuario(uid) do
+            nil ->
+              IO.puts(
+                "No se encontró un equipo asociado a tu usuario. " <>
+                  "Únete a un equipo antes de enviar consultas."
+              )
+
+            %{id: equipo_id, nombre: nombre_eq} ->
+              texto = ask("Escribe tu consulta para los mentores: ")
+              fecha = DateTime.utc_now() |> DateTime.to_iso8601()
+
+              # mensajes.csv: id,equipo_id,usuario_id,texto,fecha_iso
+              fila = [
+                "",
+                Integer.to_string(equipo_id),
+                Integer.to_string(uid),
+                limpiar(texto),
+                fecha
+              ]
+
+              :ok = CSV.agregar("data/mensajes.csv", fila)
+
+              IO.puts("\nConsulta enviada a los mentores para el equipo #{nombre_eq}.\n")
+          end
+        else
+          IO.puts("No tienes permiso para enviar consultas a mentores.")
         end
 
       _ ->
@@ -281,6 +326,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   defp ask_int(p), do: ask(p) |> String.to_integer()
   defp to_str(nil), do: ""
   defp to_str(s), do: String.trim(to_string(s))
+
+  defp limpiar(t),
+    do: t |> to_str() |> String.replace("\n", " ") |> String.trim()
 
   # ====== NORMALIZACIÓN ======
   # Estados del servicio: idea | en_progreso | entregado
