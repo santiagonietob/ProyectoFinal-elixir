@@ -14,7 +14,7 @@ defmodule HackathonApp.Adapter.AvancesCliente do
 
   @spec suscribirse(non_neg_integer(), pid()) :: :ok | {:error, term()}
   def suscribirse(proyecto_id, pid \\ self())
-      when is_integer(proyecto_id) and proyecto_id > 0 and is_pid(pid) do
+  def suscribirse(proyecto_id, pid) when is_integer(proyecto_id) and proyecto_id > 0 and is_pid(pid) do
     case conectar_remoto(elem(@servicio_remoto, 1)) do
       :ok ->
         send({elem(@servicio_remoto, 0), elem(@servicio_remoto, 1)}, {:suscribir, pid})

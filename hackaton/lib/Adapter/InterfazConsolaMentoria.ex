@@ -87,25 +87,22 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   # ====== Acciones ======
   defp ver_equipos(u) do
     if Autorizacion.can?(u.rol, :ver_equipos) do
-      case EquipoServicio.listar_equipos() do
-        {:ok, []} ->
-          IO.puts(IO.ANSI.yellow() <> "No hay equipos registrados." <> IO.ANSI.reset())
+      equipos = EquipoServicio.listar_todos()
 
-        {:ok, equipos} ->
-          IO.puts("\n" <> IO.ANSI.green() <> "--- Equipos ---" <> IO.ANSI.reset())
+      if equipos == [] do
+        IO.puts(IO.ANSI.yellow() <> "No hay equipos registrados." <> IO.ANSI.reset())
+      else
+        IO.puts("\n" <> IO.ANSI.green() <> "--- Equipos ---" <> IO.ANSI.reset())
 
-          Enum.each(equipos, fn e ->
-            tema = Map.get(e, :tema, Map.get(e, :nombre, "sin_tema"))
-            estado = if Map.get(e, :activo, true), do: "activo", else: "inactivo"
+        Enum.each(equipos, fn e ->
+          tema = Map.get(e, :tema, Map.get(e, :nombre, "sin_tema"))
+          estado = if Map.get(e, :activo, true), do: "activo", else: "inactivo"
 
-            IO.puts(
-              IO.ANSI.cyan() <>
-                "• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})" <> IO.ANSI.reset()
-            )
-          end)
-
-        {:error, m} ->
-          IO.puts(IO.ANSI.red() <> "Error al listar equipos: " <> to_string(m) <> IO.ANSI.reset())
+          IO.puts(
+            IO.ANSI.cyan() <>
+              "• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})" <> IO.ANSI.reset()
+          )
+        end)
       end
     else
       IO.puts(
@@ -338,6 +335,4 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   end
 
   defp limpiar(t), do: t |> to_string() |> String.replace("\n", " ") |> String.trim()
-  defp to_str(nil), do: ""
-  defp to_str(s), do: s |> to_string() |> String.trim()
 end

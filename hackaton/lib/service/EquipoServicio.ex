@@ -103,7 +103,7 @@ defmodule HackathonApp.Service.EquipoServicio do
     |> Enum.map(fn e ->
       c =
         miembros
-        |> Enum.count(fn [u_id, e_id, _rol] ->
+        |> Enum.count(fn [_u_id, e_id, _rol] ->
           # membresias.csv: usuario_id,equipo_id,rol_en_equipo
           e_id == Integer.to_string(e.id)
         end)
@@ -157,7 +157,7 @@ defmodule HackathonApp.Service.EquipoServicio do
   @spec listar_miembros_por_id(non_neg_integer()) :: [Membresia.t()]
   def listar_miembros_por_id(equipo_id) do
     CSV.leer(@membresias_csv)
-    |> Enum.filter(fn [u_id, e_id, _rol] ->
+    |> Enum.filter(fn [_u_id, e_id, _rol] ->
       # membresias.csv: usuario_id,equipo_id,rol_en_equipo
       e_id == Integer.to_string(equipo_id)
     end)

@@ -5,9 +5,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   """
   @nombre_servicio_local :cliente_chat
 
-  # Este tuple no se usa directamente, pero lo dejamos por si quieres extenderlo
-  @servicio_local {@nombre_servicio_local, :"nodocliente@192.168.11.103"}
-
   # Nodo del servidor de chat (la PC donde corre HackathonApp con ChatServidor)
   @nodo_remoto :"nodoservidor@192.168.11.103"
 
@@ -29,7 +26,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
     |> iniciar_chat(nombre)
   end
 
-  # ═══════════════════════════════════════════════════════════
+  # ═════════════════════════════════════════════════
+
+  # ═════════════════════════════════════════════════════════==
   #   UI BÁSICA
   # ═══════════════════════════════════════════════════════════
 
@@ -221,4 +220,5 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
     send(@servicio_remoto, {:mensaje, self_registered(), texto})
     :continuar
   end
+
 end

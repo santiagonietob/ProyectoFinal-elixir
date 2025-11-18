@@ -266,7 +266,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   defp sub_avances do
     id = ask_int("Proyecto ID a suscribirse: ")
 
-    listener =
+    _listener =
       spawn(fn ->
         # este proceso es el que tendrá el receive
         case AvancesCliente.suscribirse(id, self()) do
@@ -376,18 +376,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
     )
   end
 
-  defp print_proyecto(titulo, p) do
-    IO.puts("\n" <> IO.ANSI.green() <> "#{titulo}." <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "ID: #{p.id}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Equipo ID: #{p.equipo_id}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Título: #{p.titulo}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Categoría: #{p.categoria}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "Estado: #{p.estado}" <> IO.ANSI.reset())
 
-    IO.puts(
-      IO.ANSI.light_white() <> "Fecha de registro: #{p.fecha_registro}\n" <> IO.ANSI.reset()
-    )
-  end
 
   defp ask_int(p), do: ask(p) |> String.to_integer()
   defp to_str(nil), do: ""
