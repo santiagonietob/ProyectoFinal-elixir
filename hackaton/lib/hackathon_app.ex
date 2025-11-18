@@ -4,7 +4,7 @@ defmodule HackathonApp do
 
   @impl true
   def start(_type, _args) do
-    IO.puts("\nIniciando HackathonApp...")
+    IO.puts("\n" <> IO.ANSI.cyan() <> "Iniciando HackathonApp..." <> IO.ANSI.reset())
 
     base_children = [
       # Servidor de avances como GenServer (usa start_link/1)

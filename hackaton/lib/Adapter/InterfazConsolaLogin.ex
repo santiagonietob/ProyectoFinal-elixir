@@ -7,10 +7,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   def iniciar, do: loop()
 
   defp loop do
-    IO.puts("\n=== HACKATHON COLABORATIVA ===")
-    IO.puts("1) Iniciar sesión")
-    IO.puts("2) Registrarme (si no tengo cuenta)")
-    IO.puts("0) Salir")
+    IO.puts("\n" <> IO.ANSI.cyan() <> "=== HACKATHON COLABORATIVA ===" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "1) Iniciar sesión" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "2) Registrarme (si no tengo cuenta)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
 
     case prompt("> ") do
       "1" ->
@@ -22,10 +22,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
         loop()
 
       "0" ->
-        IO.puts("Hasta pronto!")
+        IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
 
       _ ->
-        IO.puts("Opción inválida")
+        IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())
         loop()
     end
   end
@@ -38,11 +38,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     case AuthServicio.login(nombre, pass) do
       {:ok, u} ->
         start_session(u)
-        IO.puts("\nBienvenido #{u.nombre} (Interfaz #{u.rol})")
+        IO.puts(IO.ANSI.green() <> "\nBienvenido #{u.nombre} (Interfaz #{u.rol})" <> IO.ANSI.reset())
         ruteo_por_rol(u.rol)
 
       {:error, m} ->
-        IO.puts("Login fallido: " <> m)
+        IO.puts(IO.ANSI.red() <> "Login fallido: " <> m <> IO.ANSI.reset())
     end
   end
 
@@ -54,11 +54,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
 
     case UsuarioServicio.registrar(nombre, correo, rol, pass) do
       {:ok, _u} ->
-        IO.puts("Registro exitoso. Ahora inicia sesión.")
+        IO.puts(IO.ANSI.green() <> "Registro exitoso. Ahora inicia sesión." <> IO.ANSI.reset())
         login()
 
       {:error, m} ->
-        IO.puts("Error: " <> m)
+        IO.puts(IO.ANSI.red() <> "Error: " <> m <> IO.ANSI.reset())
     end
   end
 
@@ -66,7 +66,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   defp ruteo_por_rol("organizador"), do: InterfazConsola.iniciar()
   defp ruteo_por_rol("mentor"), do: InterfazConsolaMentoria.iniciar()
   defp ruteo_por_rol("participante"), do: InterfazConsolaProyectos.iniciar()
-  defp ruteo_por_rol(_), do: IO.puts("Rol desconocido")
+  defp ruteo_por_rol(_), do: IO.puts(IO.ANSI.red() <> "Rol desconocido" <> IO.ANSI.reset())
 
   # ====== Sesión ======
   defp start_session(%{id: id, nombre: n, rol: r}),

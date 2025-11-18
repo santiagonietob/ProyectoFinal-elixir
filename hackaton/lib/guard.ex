@@ -7,7 +7,7 @@ defmodule HackathonApp.Guard do
   def ensure_role!(required) do
     case Session.current() do
       nil ->
-        IO.puts("No hay sesión. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "\nNo hay sesión. Inicia sesión primero." <> IO.ANSI.reset())
         InterfazConsolaLogin.iniciar()
         throw(:halt)
 
@@ -15,7 +15,7 @@ defmodule HackathonApp.Guard do
         :ok
 
       %{rol: other} ->
-        IO.puts("Acceso denegado. Tu rol es #{other}, se requiere #{required}.")
+        IO.puts(IO.ANSI.red() <> "\nAcceso denegado. Tu rol es #{other}, se requiere #{required}." <> IO.ANSI.reset())
         InterfazConsolaLogin.iniciar()
         throw(:halt)
     end

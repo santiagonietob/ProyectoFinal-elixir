@@ -9,13 +9,13 @@ defmodule HackathonApp.Adapter.InterfazConsola do
 
   def iniciar do
     HackathonApp.Guard.ensure_role!("organizador")
-    IO.puts("\n=== HACKATHON COLABORATIVA ===\n")
-    IO.puts("1) Gestión de equipos")
-    IO.puts("2) Gestión de proyectos")
-    IO.puts("3) Comunicación en tiempo real")
-    IO.puts("4) Mentoría y retroalimentación")
-    IO.puts("5) Modo comandos (/help, /teams, /project...)")
-    IO.puts("0) Salir")
+    IO.puts("\n" <> IO.ANSI.cyan() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "1) Gestión de equipos" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "2) Gestión de proyectos" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "3) Comunicación en tiempo real" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "4) Mentoría y retroalimentación" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "5) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
 
     case IO.gets("> ") |> String.trim() do
       "1" ->
@@ -39,10 +39,10 @@ defmodule HackathonApp.Adapter.InterfazConsola do
         iniciar()
 
       "0" ->
-        IO.puts("Hasta pronto!")
+        IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
 
       _ ->
-        IO.puts("Opción inválida")
+        IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())
         iniciar()
     end
   end

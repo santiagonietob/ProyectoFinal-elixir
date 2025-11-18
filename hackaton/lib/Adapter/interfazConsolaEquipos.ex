@@ -11,15 +11,15 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   end
 
   defp menu do
-    IO.puts("\n=== Gestión de equipos (organizador) ===")
-    IO.puts("1) Registrar participante/mentor/organizador")
-    IO.puts("2) Crear equipo (por tema)")
-    IO.puts("3) Unir participante a equipo")
-    IO.puts("4) Listar equipos activos")
-    IO.puts("5) Listar miembros de un equipo")
-    IO.puts("6) Eliminar equipo")
-    IO.puts("7) Volver")
-    IO.puts("0) Salir")
+    IO.puts("\n" <> IO.ANSI.cyan() <> "=== Gestión de equipos (organizador) ===" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "1) Registrar participante/mentor/organizador" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "2) Crear equipo (por tema)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "3) Unir participante a equipo" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "4) Listar equipos activos" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "5) Listar miembros de un equipo" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "6) Eliminar equipo" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "7) Volver" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
 
     case IO.gets("> ") |> to_str() do
       "1" ->
@@ -56,10 +56,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
         InterfazConsola.iniciar()
 
       "0" ->
-        IO.puts("Hasta luego.")
+        IO.puts(IO.ANSI.green() <> "Hasta luego." <> IO.ANSI.reset())
 
       _ ->
-        IO.puts("Opción inválida")
+        IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())
         menu()
     end
   end
@@ -69,10 +69,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
     case HackathonApp.Service.EquipoServicio.eliminar_equipo(ident) do
       {:ok, nombre, id, borradas} ->
-        IO.puts("✔️ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}")
+        IO.puts(IO.ANSI.green() <> "✔️ Eliminado equipo #{nombre} (id=#{id}). Membresías removidas: #{borradas}" <> IO.ANSI.reset())
 
       {:error, msg} ->
-        IO.puts("Error: #{msg}")
+        IO.puts(IO.ANSI.red() <> "Error: #{msg}" <> IO.ANSI.reset())
     end
   end
 
@@ -80,14 +80,14 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   defp ensure_organizer! do
     case Session.current() do
       nil ->
-        IO.puts("No hay sesión. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "No hay sesión. Inicia sesión primero." <> IO.ANSI.reset())
         raise RuntimeError, message: "Sin sesión activa"
 
       %{rol: rol} ->
         if Autorizacion.can?(rol, :crear_equipo) do
           :ok
         else
-          IO.puts("Acceso denegado. Esta sección es solo para organizador.")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado. Esta sección es solo para organizador." <> IO.ANSI.reset())
           InterfazConsola.iniciar()
           raise RuntimeError, message: "Acceso denegado: se requiere rol organizador"
         end
@@ -103,13 +103,13 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
     case UsuarioServicio.registrar(nombre, correo, rol, pass) do
       {:ok, u} ->
-        IO.puts("Registrado id=#{u.id} rol=#{u.rol}")
+        IO.puts(IO.ANSI.green() <> "Registrado id=#{u.id} rol=#{u.rol}" <> IO.ANSI.reset())
 
       {:error, "Ya existe un usuario con ese nombre"} ->
-        IO.puts("El usuario '#{nombre}' ya está registrado")
+        IO.puts(IO.ANSI.yellow() <> "El usuario '#{nombre}' ya está registrado" <> IO.ANSI.reset())
 
       {:error, m} ->
-        IO.puts("Error: #{m}")
+        IO.puts(IO.ANSI.red() <> "Error: #{m}" <> IO.ANSI.reset())
     end
   end
 
@@ -119,8 +119,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
     tema = ask("Tema/Afinidad: ")
 
     case EquipoServicio.crear_equipo(nombre, desc, tema) do
-      {:ok, e} -> IO.puts("Creado equipo #{e.nombre} (id=#{e.id}, tema=#{e.tema})")
-      {:error, m} -> IO.puts("Error: #{m}")
+      {:ok, e} -> IO.puts(IO.ANSI.green() <> "Creado equipo #{e.nombre} (id=#{e.id}, tema=#{e.tema})" <> IO.ANSI.reset())
+      {:error, m} -> IO.puts(IO.ANSI.red() <> "Error: #{m}" <> IO.ANSI.reset())
     end
   end
 
@@ -130,11 +130,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
 
     with %{id: uid} <- UsuarioServicio.buscar_por_nombre(nombre_part) || %{},
          {:ok, _} <- EquipoServicio.unirse_a_equipo(nombre_eq, uid) do
-      IO.puts("Se unió #{nombre_part} a #{nombre_eq}")
+      IO.puts(IO.ANSI.green() <> "Se unió #{nombre_part} a #{nombre_eq}" <> IO.ANSI.reset())
     else
-      nil -> IO.puts("Usuario no encontrado")
-      {:error, msg} -> IO.puts("Error: #{msg}")
-      _ -> IO.puts("Operación inválida")
+      nil -> IO.puts(IO.ANSI.yellow() <> "Usuario no encontrado" <> IO.ANSI.reset())
+      {:error, msg} -> IO.puts(IO.ANSI.red() <> "Error: #{msg}" <> IO.ANSI.reset())
+      _ -> IO.puts(IO.ANSI.red() <> "Operación inválida" <> IO.ANSI.reset())
     end
   end
 

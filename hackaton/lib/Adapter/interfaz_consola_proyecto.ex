@@ -13,21 +13,21 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   def iniciar do
     case Session.current() do
       nil ->
-        IO.puts("No hay sesión. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "No hay sesión. Inicia sesión primero." <> IO.ANSI.reset())
 
       %{rol: rol} ->
         if Autorizacion.can?(rol, :ver_proyecto) do
-          IO.puts("\n=== Proyectos ===")
-          IO.puts("1) Registrar idea")
-          IO.puts("2) Cambiar estado")
-          IO.puts("3) Agregar avance")
-          IO.puts("4) Listar por categoría")
-          IO.puts("5) Listar por estado")
-          IO.puts("6) Suscribirse a avances (tiempo real)")
-          IO.puts("7) Enviar consulta a mentores")
-          IO.puts("8) Modo comandos (/help, /teams, /project...)")
-          IO.puts("9) Chat en tiempo real (canal general)")
-          IO.puts("0) Volver")
+          IO.puts("\n" <> IO.ANSI.cyan() <> "=== Proyectos ===" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "1) Registrar idea" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "2) Cambiar estado" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "3) Agregar avance" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "4) Listar por categoría" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "5) Listar por estado" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "6) Suscribirse a avances (tiempo real)" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "7) Enviar consulta a mentores" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.green() <> "0) Volver" <> IO.ANSI.reset())
 
           case ask("> ") do
             "1" ->
@@ -70,11 +70,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               :ok
 
             _ ->
-              IO.puts("Opción inválida")
+              IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())
               iniciar()
           end
         else
-          IO.puts("Acceso denegado (no tienes permiso para ver proyectos).")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado (no tienes permiso para ver proyectos)." <> IO.ANSI.reset())
         end
     end
   end
@@ -90,21 +90,23 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           case EquipoServicio.buscar_equipo_por_usuario(uid) do
             nil ->
               IO.puts(
-                "No se encontró un equipo asociado a tu usuario. Únete a uno antes de registrar un proyecto."
+                IO.ANSI.yellow() <>
+                  "No se encontró un equipo asociado a tu usuario. Únete a uno antes de registrar un proyecto." <>
+                  IO.ANSI.reset()
               )
 
             %{id: equipo_id} ->
               case ProyectoServicio.crear(equipo_id, tit, cat) do
                 {:ok, p} -> print_proyecto_creado(p)
-                {:error, m} -> IO.puts("Error: " <> m)
+                {:error, m} -> IO.puts(IO.ANSI.red() <> "Error: " <> m <> IO.ANSI.reset())
               end
           end
         else
-          IO.puts("Acceso denegado (no puedes registrar proyectos).")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes registrar proyectos)." <> IO.ANSI.reset())
         end
 
       _ ->
-        IO.puts("No hay sesión activa. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "No hay sesión activa. Inicia sesión primero." <> IO.ANSI.reset())
     end
   end
 
@@ -116,16 +118,16 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           e = normalizar_estado(ask("Estado (idea|en_progreso|entregado) [acepta sinónimos]: "))
 
           case ProyectoServicio.cambiar_estado(id, e) do
-            {:ok, nuevo} -> IO.puts("Estado actualizado a: #{nuevo}")
-            {:error, m} -> IO.puts("#{m}")
+            {:ok, nuevo} -> IO.puts(IO.ANSI.green() <> "Estado actualizado a: #{nuevo}" <> IO.ANSI.reset())
+            {:error, m} -> IO.puts(IO.ANSI.red() <> "#{m}" <> IO.ANSI.reset())
             otro -> IO.inspect(otro, label: "Respuesta cambiar_estado/2")
           end
         else
-          IO.puts("Acceso denegado (no puedes cambiar el estado del proyecto).")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes cambiar el estado del proyecto)." <> IO.ANSI.reset())
         end
 
       _ ->
-        IO.puts("No hay sesión activa. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "No hay sesión activa. Inicia sesión primero." <> IO.ANSI.reset())
     end
   end
 
@@ -137,12 +139,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           txt = ask("Avance: ")
 
           case ProyectoServicio.agregar_avance(pid, txt) do
-            {:ok, _} -> IO.puts("Avance registrado")
-            {:error, m} -> IO.puts("#{m}")
+            {:ok, _} -> IO.puts(IO.ANSI.green() <> "Avance registrado" <> IO.ANSI.reset())
+            {:error, m} -> IO.puts(IO.ANSI.red() <> "#{m}" <> IO.ANSI.reset())
             otro -> IO.inspect(otro, label: "Respuesta agregar_avance/2")
           end
         else
-          IO.puts("Acceso denegado (no puedes agregar avances).")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes agregar avances)." <> IO.ANSI.reset())
         end
 
       _ ->
@@ -162,11 +164,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           proyectos = listar_seguro() |> Enum.filter(&(&1.categoria == cat))
           listar(proyectos)
         else
-          IO.puts("Acceso denegado.")
+          IO.puts(IO.ANSI.red() <> "Acceso denegado." <> IO.ANSI.reset())
         end
 
       _ ->
-        IO.puts("No hay sesión activa. Inicia sesión primero.")
+        IO.puts(IO.ANSI.yellow() <> "No hay sesión activa. Inicia sesión primero." <> IO.ANSI.reset())
     end
   end
 
@@ -193,10 +195,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
         if Autorizacion.can?(rol, :enviar_mensaje) do
           case EquipoServicio.buscar_equipo_por_usuario(uid) do
             nil ->
-              IO.puts(
-                "No se encontró un equipo asociado a tu usuario. " <>
-                  "Únete a un equipo antes de enviar consultas."
-              )
+              IO.puts(IO.ANSI.yellow() <> "No se encontró un equipo asociado a tu usuario. Únete a un equipo antes de enviar consultas." <> IO.ANSI.reset())
 
             %{id: equipo_id, nombre: nombre_eq} ->
               texto = ask("Escribe tu consulta para los mentores: ")
@@ -213,7 +212,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
               :ok = CSV.agregar("data/mensajes.csv", fila)
 
-              IO.puts("\nConsulta enviada a los mentores para el equipo #{nombre_eq}.\n")
+                IO.puts(IO.ANSI.green() <> "\nConsulta enviada a los mentores para el equipo #{nombre_eq}.\n" <> IO.ANSI.reset())
           end
         else
           IO.puts("No tienes permiso para enviar consultas a mentores.")
@@ -232,10 +231,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
       :ok ->
         # proceso en segundo plano escuchando avances
         spawn(fn -> loop_listen(id) end)
-        IO.puts("Suscrito al proyecto #{id}. Puedes seguir usando el menú...\n")
+        IO.puts(IO.ANSI.green() <> "Suscrito al proyecto #{id}. Puedes seguir usando el menú..." <> IO.ANSI.reset())
 
       {:error, m} ->
-        IO.puts("Error al suscribirse: #{inspect(m)}")
+        IO.puts(IO.ANSI.red() <> "Error al suscribirse: #{inspect(m)}" <> IO.ANSI.reset())
     end
   end
 
@@ -246,10 +245,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
         t = a[:timestamp] || a[:fecha_iso] || "-"
         msg = a[:mensaje] || a[:contenido] || "(sin contenido)"
 
-        IO.puts("""
-
-        [AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}
-        """)
+        IO.puts(IO.ANSI.cyan() <> "\n[AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}" <> IO.ANSI.reset())
 
         loop_listen(proyecto_id)
 
@@ -262,11 +258,13 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   # ====== LISTADO / HELPERS ======
   defp listar(lista) do
     if Enum.empty?(lista) do
-      IO.puts("(sin resultados)")
+      IO.puts(IO.ANSI.yellow() <> "(sin resultados)" <> IO.ANSI.reset())
     else
       Enum.each(lista, fn p ->
         IO.puts(
-          "##{p.id} [eq=#{p.equipo_id}] #{p.titulo} (#{p.categoria}) - #{p.estado} @ #{p.fecha_registro}"
+          IO.ANSI.cyan() <>
+            "##{p.id} [eq=#{p.equipo_id}] #{p.titulo} (#{p.categoria}) - #{p.estado} @ #{p.fecha_registro}" <>
+            IO.ANSI.reset()
         )
       end)
     end
@@ -304,23 +302,23 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   end
 
   defp print_proyecto_creado(p) do
-    IO.puts("\nProyecto registrado correctamente.")
-    IO.puts("ID: #{p.id}")
-    IO.puts("Equipo ID: #{p.equipo_id}")
-    IO.puts("Título: #{p.titulo}")
-    IO.puts("Categoría: #{p.categoria}")
-    IO.puts("Estado inicial: #{p.estado}")
-    IO.puts("Fecha de registro: #{p.fecha_registro}\n")
+    IO.puts("\n" <> IO.ANSI.green() <> "Proyecto registrado correctamente." <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "ID: #{p.id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Equipo ID: #{p.equipo_id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Título: #{p.titulo}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Categoría: #{p.categoria}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Estado inicial: #{p.estado}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Fecha de registro: #{p.fecha_registro}\n" <> IO.ANSI.reset())
   end
 
   defp print_proyecto(titulo, p) do
-    IO.puts("\n#{titulo}.")
-    IO.puts("ID: #{p.id}")
-    IO.puts("Equipo ID: #{p.equipo_id}")
-    IO.puts("Título: #{p.titulo}")
-    IO.puts("Categoría: #{p.categoria}")
-    IO.puts("Estado: #{p.estado}")
-    IO.puts("Fecha de registro: #{p.fecha_registro}\n")
+    IO.puts("\n" <> IO.ANSI.green() <> "#{titulo}." <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "ID: #{p.id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Equipo ID: #{p.equipo_id}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Título: #{p.titulo}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Categoría: #{p.categoria}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Estado: #{p.estado}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "Fecha de registro: #{p.fecha_registro}\n" <> IO.ANSI.reset())
   end
 
   defp ask_int(p), do: ask(p) |> String.to_integer()

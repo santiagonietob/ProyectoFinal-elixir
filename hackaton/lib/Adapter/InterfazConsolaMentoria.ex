@@ -15,22 +15,19 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   # ====== Menú Mentoría ======
   defp loop(u) do
-    IO.puts("\n" <> IO.ANSI.cyan())
-    IO.puts("\n=== MENÚ DE MENTORÍA ===")
-    IO.puts(IO.ANSI.reset())
-    IO.puts(""<> IO.ANSI.yellow())
-    IO.puts("Mentor: #{u.nombre}")
-    IO.puts(IO.ANSI.reset())
-    IO.puts("1) Ver equipos")
-    IO.puts("2) Ver proyectos")
-    IO.puts("3) Dar mentoría (dejar comentario)")
-    IO.puts("4) Ver avances recientes")
-    IO.puts("5) Ver miembros de un equipo")
-    IO.puts("6) Ver mensajes recientes de un equipo")
-    IO.puts("7) Enviar mensaje al equipo (consulta)")
-    IO.puts("8) Modo comandos (/help, /teams, /project...)")
-    IO.puts("9) Chat en tiempo real (canal general)")
-    IO.puts("0) Volver")
+    IO.puts("\n" <> IO.ANSI.cyan() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.yellow() <> "Mentor: #{u.nombre}" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_black() <> "----------------------------------------" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "1) Ver equipos" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "2) Ver proyectos" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "3) Dar mentoría (dejar comentario)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "4) Ver avances recientes" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "5) Ver miembros de un equipo" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "6) Ver mensajes recientes de un equipo" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "7) Enviar mensaje al equipo (consulta)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.red() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.green() <> "0) Volver" <> IO.ANSI.reset())
 
     case prompt("> ") do
       "1" ->
@@ -83,22 +80,22 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     if Autorizacion.can?(u.rol, :ver_equipos) do
       case EquipoServicio.listar_equipos() do
         {:ok, []} ->
-          IO.puts("No hay equipos registrados.")
+          IO.puts(IO.ANSI.yellow() <> "No hay equipos registrados." <> IO.ANSI.reset())
 
         {:ok, equipos} ->
-          IO.puts("\n--- Equipos ---")
+          IO.puts("\n" <> IO.ANSI.green() <> "--- Equipos ---" <> IO.ANSI.reset())
 
           Enum.each(equipos, fn e ->
             tema = Map.get(e, :tema, Map.get(e, :nombre, "sin_tema"))
             estado = if Map.get(e, :activo, true), do: "activo", else: "inactivo"
-            IO.puts("• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})")
+            IO.puts(IO.ANSI.cyan() <> "• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})" <> IO.ANSI.reset())
           end)
 
         {:error, m} ->
-          IO.puts("Error al listar equipos: " <> m)
+          IO.puts(IO.ANSI.red() <> "Error al listar equipos: " <> to_string(m) <> IO.ANSI.reset())
       end
     else
-      IO.puts("Acceso denegado. Esta sección es solo lectura para mentor.")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado. Esta sección es solo lectura para mentor." <> IO.ANSI.reset())
     end
   end
 
@@ -107,14 +104,14 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
       # Soporta ambas firmas: listar_proyectos/0 -> {:ok, lista}  o  listar/0 -> lista
       case safe_listar_proyectos() do
         {:ok, []} ->
-          IO.puts("No hay proyectos registrados.")
+          IO.puts(IO.ANSI.yellow() <> "No hay proyectos registrados." <> IO.ANSI.reset())
 
         {:ok, proyectos} ->
-          IO.puts("\n--- Proyectos ---")
+          IO.puts("\n" <> IO.ANSI.green() <> "--- Proyectos ---" <> IO.ANSI.reset())
           Enum.each(proyectos, &print_proyecto/1)
 
         lista when is_list(lista) and lista == [] ->
-          IO.puts("No hay proyectos registrados.")
+          IO.puts(IO.ANSI.yellow() <> "No hay proyectos registrados." <> IO.ANSI.reset())
 
         lista when is_list(lista) ->
           IO.puts("\n--- Proyectos ---")
@@ -124,7 +121,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
           IO.puts("Error al listar proyectos: " <> to_string(m))
       end
     else
-      IO.puts("Acceso denegado (solo lectura para mentor).")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado (solo lectura para mentor)." <> IO.ANSI.reset())
     end
   end
 
@@ -152,12 +149,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         # mensajes.csv: id,equipo_id,usuario_id,texto,fecha_iso
         fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts("Comentario registrado.")
+        IO.puts(IO.ANSI.green() <> "Comentario registrado." <> IO.ANSI.reset())
       else
         {:error, m} -> IO.puts(m)
       end
     else
-      IO.puts("Acceso denegado (no puedes registrar mentoría).")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes registrar mentoría)." <> IO.ANSI.reset())
     end
   end
 
@@ -175,16 +172,16 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         |> Enum.take(-10)
 
       if avances == [] do
-        IO.puts("No hay avances registrados.")
+        IO.puts(IO.ANSI.yellow() <> "No hay avances registrados." <> IO.ANSI.reset())
       else
-        IO.puts("\n--- Avances recientes ---")
+        IO.puts("\n" <> IO.ANSI.green() <> "--- Avances recientes ---" <> IO.ANSI.reset())
 
         Enum.each(avances, fn a ->
-          IO.puts("[#{a.fecha_iso}] (proy #{a.proyecto_id}) #{a.contenido}")
+          IO.puts(IO.ANSI.cyan() <> "[#{a.fecha_iso}] (proy #{a.proyecto_id}) #{a.contenido}" <> IO.ANSI.reset())
         end)
       end
     else
-      IO.puts("Acceso denegado.")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado." <> IO.ANSI.reset())
     end
   end
 
@@ -195,17 +192,17 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
       case EquipoServicio.listar_miembros(nombre_eq) do
         [] ->
-          IO.puts("Sin miembros o equipo inexistente.")
+          IO.puts(IO.ANSI.yellow() <> "Sin miembros o equipo inexistente." <> IO.ANSI.reset())
 
         miembros ->
-          IO.puts("\n--- Miembros de #{String.trim(nombre_eq)} ---")
+          IO.puts("\n" <> IO.ANSI.green() <> "--- Miembros de #{String.trim(nombre_eq)} ---" <> IO.ANSI.reset())
 
           Enum.each(miembros, fn m ->
-            IO.puts("• usuario_id=#{m.usuario_id} rol_en_equipo=#{m.rol_en_equipo}")
+            IO.puts(IO.ANSI.cyan() <> "• usuario_id=#{m.usuario_id} rol_en_equipo=#{m.rol_en_equipo}" <> IO.ANSI.reset())
           end)
       end
     else
-      IO.puts("Acceso denegado.")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado." <> IO.ANSI.reset())
     end
   end
 
@@ -228,19 +225,19 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
           |> Enum.take(-15)
 
         if mensajes == [] do
-          IO.puts("No hay mensajes para ese equipo.")
+          IO.puts(IO.ANSI.yellow() <> "No hay mensajes para ese equipo." <> IO.ANSI.reset())
         else
-          IO.puts("\n--- Mensajes recientes (#{String.trim(nombre_eq)}) ---")
+          IO.puts("\n" <> IO.ANSI.green() <> "--- Mensajes recientes (#{String.trim(nombre_eq)}) ---" <> IO.ANSI.reset())
 
           Enum.each(mensajes, fn m ->
-            IO.puts("[#{m.fecha}] (user #{m.usuario_id}) #{m.texto}")
+            IO.puts(IO.ANSI.cyan() <> "[#{m.fecha}] (user #{m.usuario_id}) #{m.texto}" <> IO.ANSI.reset())
           end)
         end
       else
         {:error, m} -> IO.puts(m)
       end
     else
-      IO.puts("Acceso denegado.")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado." <> IO.ANSI.reset())
     end
   end
 
@@ -254,12 +251,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         fecha = DateTime.utc_now() |> DateTime.to_iso8601()
         fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts("Mensaje enviado a #{String.trim(nombre_eq)}.")
+        IO.puts(IO.ANSI.green() <> "Mensaje enviado a #{String.trim(nombre_eq)}." <> IO.ANSI.reset())
       else
         {:error, m} -> IO.puts(m)
       end
     else
-      IO.puts("Acceso denegado (no puedes enviar mensajes).")
+      IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes enviar mensajes)." <> IO.ANSI.reset())
     end
   end
 

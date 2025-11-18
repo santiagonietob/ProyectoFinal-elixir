@@ -35,9 +35,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   # ═══════════════════════════════════════════════════════════
 
   defp mostrar_banner() do
-    IO.puts("\n" <> IO.ANSI.cyan())
-    IO.puts("       CHAT EN TIEMPO REAL       ")
-    IO.puts(IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan() <> "━━━ CHAT EN TIEMPO REAL ━━━" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_black() <> "────────────────────────────────" <> IO.ANSI.reset())
   end
 
   defp solicitar_nombre() do
@@ -123,16 +122,16 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
 
   defp iniciar_chat({:error, razon}, _nombre) do
     IO.puts(IO.ANSI.red() <> "\n Error: #{razon}" <> IO.ANSI.reset())
-    IO.puts("Intenta de nuevo.\n")
+    IO.puts(IO.ANSI.yellow() <> "Intenta de nuevo." <> IO.ANSI.reset())
   end
 
   defp mostrar_ayuda() do
-    IO.puts("\n" <> IO.ANSI.blue() <> "━━━ Comandos disponibles ━━━")
-    IO.puts("  /usuarios  - Ver usuarios conectados")
-    IO.puts("  /ayuda     - Mostrar esta ayuda")
-    IO.puts("  /salir     - Salir del chat")
-    IO.puts("  Cualquier otro texto será enviado como mensaje")
-    IO.puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" <> IO.ANSI.reset() <> "\n")
+    IO.puts("\n" <> IO.ANSI.blue() <> "━━━ Comandos disponibles ━━━" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "  /usuarios  - Ver usuarios conectados" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "  /ayuda     - Mostrar esta ayuda" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "  /salir     - Salir del chat" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_white() <> "  Cualquier otro texto será enviado como mensaje" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_black() <> "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" <> IO.ANSI.reset() <> "\n")
   end
 
   # ═══════════════════════════════════════════════════════════
@@ -166,7 +165,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
         bucle_receptor()
 
       {:mensaje_chat, mensaje, _tipo} ->
-        IO.puts(mensaje)
+        IO.puts(IO.ANSI.white() <> mensaje <> IO.ANSI.reset())
         bucle_receptor()
 
       {:info, info} ->
