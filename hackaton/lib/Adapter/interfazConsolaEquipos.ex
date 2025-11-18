@@ -2,6 +2,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   @moduledoc "Menú para gestionar equipos (solo ORGANIZADOR)."
   alias HackathonApp.Service.{UsuarioServicio, EquipoServicio, Autorizacion}
   alias HackathonApp.Adapter.InterfazConsola
+  alias HackathonApp.Adapter.InterfazConsolaLogin
   alias HackathonApp.Session
 
   # ======== Entrada protegida ========
@@ -11,11 +12,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   end
 
   defp menu do
-    IO.puts(
-      "\n" <>
-        IO.ANSI.cyan_background() <> "=== Gestión de equipos (organizador) ===" <> IO.ANSI.reset() <> "\n"
-    )
-
+    IO.puts(IO.ANSI.cyan() <> "\n══════════════════════════════════════")
+    IO.puts("   GESTIÓN DE EQUIPOS (organizador) ")
+    IO.puts("══════════════════════════════════════" <> IO.ANSI.reset() <> "\n")
     IO.puts(IO.ANSI.green() <> "1) Registrar participante/mentor/organizador" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Crear equipo (por tema)" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "3) Unir participante a equipo" <> IO.ANSI.reset())
@@ -23,7 +22,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
     IO.puts(IO.ANSI.green() <> "5) Listar miembros de un equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "6) Eliminar equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.light_cyan() <> "7) Cerrar sesión" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts("0) Menú anterior")
 
     case IO.gets("> ") |> to_str() do
       "1" ->
@@ -57,10 +56,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
         menu()
 
       "7" ->
-        InterfazConsola.iniciar()
+        IO.puts("Hasta pronto!")
+        InterfazConsolaLogin.iniciar()
 
       "0" ->
-        IO.puts(IO.ANSI.green() <> "Hasta luego." <> IO.ANSI.reset())
+        IO.puts("Volviendo...")
 
       _ ->
         IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())

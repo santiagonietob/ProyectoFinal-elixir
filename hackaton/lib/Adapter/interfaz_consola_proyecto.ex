@@ -7,18 +7,22 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Session
   alias HackathonApp.Adapter.AvancesCliente
   alias HackathonApp.Adapter.InterfazConsolaChat
+  alias HackathonApp.Adapter.InterfazConsolaLogin
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
   # ====== ENTRADA ======
   def iniciar do
     Process.sleep(300)
+
     case Session.current() do
       nil ->
         IO.puts(IO.ANSI.yellow() <> "No hay sesión. Inicia sesión primero." <> IO.ANSI.reset())
 
       %{rol: rol} ->
         if Autorizacion.can?(rol, :ver_proyecto) do
-          IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== Proyectos ===" <> IO.ANSI.reset() <> "\n" )
+          IO.puts(IO.ANSI.cyan() <> "\n══════════════════════════════════════")
+          IO.puts("            PROYECTOS")
+          IO.puts("══════════════════════════════════════" <> IO.ANSI.reset() <> "\n")
           IO.puts(IO.ANSI.green() <> "1) Registrar idea" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "2) Cambiar estado" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "3) Agregar avance" <> IO.ANSI.reset())
@@ -72,7 +76,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
               iniciar()
 
             "0" ->
-              :ok
+              IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
+              InterfazConsolaLogin.iniciar()
 
             _ ->
               IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())
@@ -259,7 +264,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   # ====== SUSCRIPCIÓN A AVANCES (TIEMPO REAL, SIN BLOQUEAR) ======
   defp sub_avances do
-
     id = ask_int("Proyecto ID a suscribirse: ")
 
     listener =
@@ -289,30 +293,29 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
   # proceso que escucha de forma indefinida los mensajes {:avance, a}
   defp loop_listen(proyecto_id) do
-  receive do
-    {:avance, a} ->
-      # puede venir como atom o como string, por si acaso
-      pid_avance = a[:proyecto_id] || a["proyecto_id"]
+    receive do
+      {:avance, a} ->
+        # puede venir como atom o como string, por si acaso
+        pid_avance = a[:proyecto_id] || a["proyecto_id"]
 
-      if pid_avance == proyecto_id do
-        t   = a[:timestamp] || a[:fecha_iso] || "-"
-        msg = a[:mensaje]   || a[:contenido] || "(sin contenido)"
+        if pid_avance == proyecto_id do
+          t = a[:timestamp] || a[:fecha_iso] || "-"
+          msg = a[:mensaje] || a[:contenido] || "(sin contenido)"
 
-        IO.puts(
-          IO.ANSI.cyan() <>
-          "\n[AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}" <>
-          IO.ANSI.reset()
-        )
-      end
+          IO.puts(
+            IO.ANSI.cyan() <>
+              "\n[AVANCE RT] [#{t}] Proyecto ##{proyecto_id}: #{msg}" <>
+              IO.ANSI.reset()
+          )
+        end
 
-      loop_listen(proyecto_id)
+        loop_listen(proyecto_id)
 
-    otro ->
-      IO.inspect(otro, label: "Evento no reconocido en avances")
-      loop_listen(proyecto_id)
+      otro ->
+        IO.inspect(otro, label: "Evento no reconocido en avances")
+        loop_listen(proyecto_id)
+    end
   end
-end
-
 
   # ====== LISTADO / HELPERS ======
   defp listar(lista) do

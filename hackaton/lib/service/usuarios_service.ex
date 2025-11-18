@@ -56,7 +56,8 @@ defmodule HackathonApp.Service.UsuarioServicio do
               hash || ""
             ])
 
-          {:ok, %Usuario{id: id, nombre: nombre, correo: correo, rol: rol, salt: salt, hash: hash}}
+          {:ok,
+           %Usuario{id: id, nombre: nombre, correo: correo, rol: rol, salt: salt, hash: hash}}
         end
       end
     end
@@ -134,10 +135,17 @@ defmodule HackathonApp.Service.UsuarioServicio do
     nombre = String.trim(to_string(nombre || ""))
 
     cond do
-      nombre == "" -> {:error, "El nombre es obligatorio"}
-      String.length(nombre) < 2 -> {:error, "El nombre debe tener al menos 2 caracteres"}
-      not Regex.match?(~r/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u, nombre) -> {:error, "El nombre solo puede contener letras y espacios"}
-      true -> :ok
+      nombre == "" ->
+        {:error, "El nombre es obligatorio"}
+
+      String.length(nombre) < 2 ->
+        {:error, "El nombre debe tener al menos 2 caracteres"}
+
+      not Regex.match?(~r/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u, nombre) ->
+        {:error, "El nombre solo puede contener letras y espacios"}
+
+      true ->
+        :ok
     end
   end
 

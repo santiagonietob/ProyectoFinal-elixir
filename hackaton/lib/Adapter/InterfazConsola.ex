@@ -4,22 +4,23 @@ defmodule HackathonApp.Adapter.InterfazConsola do
     InterfazConsolaEquipos,
     InterfazConsolaProyectos,
     InterfazConsolaChat,
-    InterfazConsolaMentoria
+    InterfazConsolaMentoria,
+    InterfazConsolaLogin
   }
 
   def iniciar do
     HackathonApp.Guard.ensure_role!("organizador")
 
-    IO.puts(
-      "\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA === "  <> IO.ANSI.reset() <> "\n"
-    )
+    IO.puts(IO.ANSI.cyan() <> "\n══════════════════════════════════════")
+    IO.puts("=== HACKATHON COLABORATIVA ===")
+    IO.puts("══════════════════════════════════════" <> IO.ANSI.reset() <> "\n")
 
     IO.puts(IO.ANSI.green() <> "1) Gestión de equipos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Gestión de proyectos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.yellow() <> "3) Comunicación en tiempo real" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "4) Mentoría y retroalimentación" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "5) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts("0) Salir")
 
     case IO.gets("> ") |> String.trim() do
       "1" ->
@@ -43,7 +44,8 @@ defmodule HackathonApp.Adapter.InterfazConsola do
         iniciar()
 
       "0" ->
-        IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
+        IO.puts("Hasta pronto!")
+        InterfazConsolaLogin.iniciar()
 
       _ ->
         IO.puts(IO.ANSI.red() <> "Opción inválida" <> IO.ANSI.reset())

@@ -6,16 +6,15 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   # ====== Punto de entrada ======
   def iniciar, do: loop()
 
-
   defp loop do
     Process.sleep(300)
-    IO.puts(
-      "\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA ===" <> IO.ANSI.reset() <> "\n"
-    )
+    IO.puts(IO.ANSI.cyan() <> "\n══════════════════════════════════════")
+    IO.puts("=== HACKATHON COLABORATIVA ===")
+    IO.puts("══════════════════════════════════════" <> IO.ANSI.reset() <> "\n")
 
     IO.puts(IO.ANSI.green() <> "1) Iniciar sesión" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Registrarme (si no tengo cuenta)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts("0) Salir")
 
     case prompt("> ") do
       "1" ->
@@ -129,7 +128,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
         solicitar_nombre_valido()
 
       not Regex.match?(~r/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u, nombre) ->
-        IO.puts(IO.ANSI.red() <> "El nombre solo puede contener letras y espacios" <> IO.ANSI.reset())
+        IO.puts(
+          IO.ANSI.red() <> "El nombre solo puede contener letras y espacios" <> IO.ANSI.reset()
+        )
+
         solicitar_nombre_valido()
 
       true ->
@@ -146,7 +148,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     if rol in allowed do
       rol
     else
-      IO.puts(IO.ANSI.red() <> "Rol inválido. Elija participante, mentor u organizador." <> IO.ANSI.reset())
+      IO.puts(
+        IO.ANSI.red() <>
+          "Rol inválido. Elija participante, mentor u organizador." <> IO.ANSI.reset()
+      )
+
       solicitar_rol_valido()
     end
   end
@@ -161,7 +167,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
         solicitar_password_valido()
 
       String.length(pass) < 6 ->
-        IO.puts(IO.ANSI.red() <> "La contraseña debe tener al menos 6 caracteres" <> IO.ANSI.reset())
+        IO.puts(
+          IO.ANSI.red() <> "La contraseña debe tener al menos 6 caracteres" <> IO.ANSI.reset()
+        )
+
         solicitar_password_valido()
 
       true ->

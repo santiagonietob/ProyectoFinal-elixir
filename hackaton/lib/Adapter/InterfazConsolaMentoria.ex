@@ -4,6 +4,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
   alias HackathonApp.Service.{EquipoServicio, ProyectoServicio, Autorizacion}
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
   alias HackathonApp.Adapter.InterfazConsolaChat
+  alias HackathonApp.Adapter.InterfazConsolaLogin
 
   # ====== Punto de entrada ======
   def iniciar do
@@ -15,7 +16,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   # ====== Menú Mentoría ======
   defp loop(u) do
-    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset() <> "\n")
+    IO.puts(
+      "\n" <> IO.ANSI.cyan_background() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset() <> "\n"
+    )
+
     IO.puts(IO.ANSI.yellow() <> "Mentor: #{u.nombre}" <> IO.ANSI.reset())
 
     IO.puts(
@@ -71,7 +75,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         loop(u)
 
       "0" ->
-        :ok
+       IO.puts("Hasta pronto!")
+       InterfazConsolaLogin.iniciar()
 
       _ ->
         IO.puts("Opción inválida")

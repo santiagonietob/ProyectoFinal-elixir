@@ -10,7 +10,6 @@ defmodule HackathonApp.Adapter.ChatServidor do
 
   # Estado: %{usuarios: %{pid => %{nombre: String.t(), monitor: reference()}}}
   def main() do
-  
     mostrar_banner()
 
     Process.register(self(), @nombre_servicio)
