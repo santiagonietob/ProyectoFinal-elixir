@@ -7,6 +7,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Session
   alias HackathonApp.Adapter.AvancesCliente
   alias HackathonApp.Adapter.InterfazConsolaChat
+  alias HackathonApp.Adapter.InterfazConsolaEquipos
   alias HackathonApp.Adapter.InterfazConsolaLogin
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
@@ -36,6 +37,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           )
 
           IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+          IO.puts( "10) Menú anterior\n" )
           IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
           case ask("> ") do
@@ -74,6 +76,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
             "9" ->
               InterfazConsolaChat.iniciar()
               iniciar()
+
+            "10" ->
+              IO.puts("Volviendo al menú anterior...")
+             InterfazConsolaEquipos.iniciar()
 
             "0" ->
               IO.puts(IO.ANSI.green() <> "Hasta pronto!" <> IO.ANSI.reset())
