@@ -9,13 +9,13 @@ defmodule HackathonApp.Adapter.InterfazConsola do
 
   def iniciar do
     HackathonApp.Guard.ensure_role!("organizador")
-    IO.puts("\n" <> IO.ANSI.cyan() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "1) Gestión de equipos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Gestión de proyectos" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "3) Comunicación en tiempo real" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.yellow() <> "3) Comunicación en tiempo real" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "4) Mentoría y retroalimentación" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "5) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
 
     case IO.gets("> ") |> String.trim() do
       "1" ->

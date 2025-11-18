@@ -1,7 +1,7 @@
 defmodule HackathonApp.Adapter.ComandosCLI do
   @moduledoc """
   Intérprete de comandos tipo slash (modo comandos).
-  Usa /back para volver al menú anterior; /quit para cerrar la app.
+  Usa /back para cerrar sesión; /quit para cerrar la app.
   """
 
   alias HackathonApp.Session
@@ -21,12 +21,12 @@ defmodule HackathonApp.Adapter.ComandosCLI do
       %{nombre: n, rol: r} ->
         IO.puts("\n=== MODO COMANDOS ===")
         IO.puts("Usuario: #{n} (rol=#{r})")
-        IO.puts("Escribe /help para ver comandos. Usa /back para volver.")
+        IO.puts("Escribe /help para ver comandos. Usa /back para cerrar sesión.")
         loop()
     end
   end
 
-  # Bucle principal: devuelve :back para volver al menú anterior
+  # Bucle principal: devuelve :back para cerrar sesión
   defp loop do
     case IO.gets("> ") do
       :eof ->
@@ -53,14 +53,14 @@ defmodule HackathonApp.Adapter.ComandosCLI do
       /project <equipo>       -> Ver proyecto de un equipo
       /join <equipo>          -> Unirse a un equipo (solo participantes)
       /chat <equipo>          -> Entrar al canal del equipo (solo participantes, 15s)
-      /back | /volver          -> Volver al menú anterior
+      /back | /volver          -> Cerrar sesión
       /exit                   -> Cerrar aplicación
     """)
 
     :cont
   end
 
-  # salir del modo comandos (volver al menú que se llamó)
+  # salir del modo comandos (cerrar sesión)
   defp dispatch("/back"), do: :back
   defp dispatch("/volver"), do: :back
 

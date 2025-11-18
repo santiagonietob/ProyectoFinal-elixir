@@ -15,7 +15,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   # ====== Menú Mentoría ======
   defp loop(u) do
-    IO.puts("\n" <> IO.ANSI.cyan() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.yellow() <> "Mentor: #{u.nombre}" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.light_black() <> "----------------------------------------" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "1) Ver equipos" <> IO.ANSI.reset())
@@ -26,8 +26,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
     IO.puts(IO.ANSI.green() <> "6) Ver mensajes recientes de un equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "7) Enviar mensaje al equipo (consulta)" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.red() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "0) Volver" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
     case prompt("> ") do
       "1" ->

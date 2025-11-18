@@ -11,15 +11,15 @@ defmodule HackathonApp.Adapter.InterfazConsolaEquipos do
   end
 
   defp menu do
-    IO.puts("\n" <> IO.ANSI.cyan() <> "=== Gestión de equipos (organizador) ===" <> IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== Gestión de equipos (organizador) ===" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "1) Registrar participante/mentor/organizador" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Crear equipo (por tema)" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "3) Unir participante a equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "4) Listar equipos activos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "5) Listar miembros de un equipo" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "6) Eliminar equipo" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "7) Volver" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.light_cyan() <> "7) Cerrar sesión" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
 
     case IO.gets("> ") |> to_str() do
       "1" ->

@@ -7,10 +7,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   def iniciar, do: loop()
 
   defp loop do
-    IO.puts("\n" <> IO.ANSI.cyan() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "1) Iniciar sesión" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Registrarme (si no tengo cuenta)" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.green() <> "0) Salir" <> IO.ANSI.reset())
+    IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
 
     case prompt("> ") do
       "1" ->

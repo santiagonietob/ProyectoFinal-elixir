@@ -17,7 +17,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
 
       %{rol: rol} ->
         if Autorizacion.can?(rol, :ver_proyecto) do
-          IO.puts("\n" <> IO.ANSI.cyan() <> "=== Proyectos ===" <> IO.ANSI.reset())
+          IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== Proyectos ===" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "1) Registrar idea" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "2) Cambiar estado" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "3) Agregar avance" <> IO.ANSI.reset())
@@ -26,8 +26,8 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
           IO.puts(IO.ANSI.green() <> "6) Suscribirse a avances (tiempo real)" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "7) Enviar consulta a mentores" <> IO.ANSI.reset())
           IO.puts(IO.ANSI.green() <> "8) Modo comandos (/help, /teams, /project...)" <> IO.ANSI.reset())
-          IO.puts(IO.ANSI.green() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
-          IO.puts(IO.ANSI.green() <> "0) Volver" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.yellow() <> "9) Chat en tiempo real (canal general)" <> IO.ANSI.reset())
+          IO.puts(IO.ANSI.light_cyan() <> "0) Cerrar sesión" <> IO.ANSI.reset())
 
           case ask("> ") do
             "1" ->

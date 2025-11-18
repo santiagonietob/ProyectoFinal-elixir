@@ -10,3 +10,5 @@ id,nombre,correo,rol,salt,hash
 9,dani,daniela@gmail.com,mentor,6VaIad3myeXtzJFUrkFeXQ==,3fa924ca1d1040bcd9624b0f2a0c20fb2d43dddc7d45d6713b67e68ad3533341
 10,hi,hi@,mentor,49KjhRJMX7rwuYNIzNY8Bg==,3dc087b228f8354cd9a28816d997561b710a610ed600a48257449d784d8ca02f
 11,hii,hii,mentor,Dpse8vcqdAo82WoFqeekMA==,b2b2014fc9004e2636ca63afba79eab1100f38e9767744629b52ab38021c0c2f
+12,LO,LO,PARTICIPANTE,HwCwwgY45mA/UZ4buBcHEw==,7fe6eb932e3006f8c0212496d14688d02222808e00e37f94f45890a0fb998f5c
+13,lo,lo,participante,CV2iw3VlcTcyx7H3A+vGUg==,cc1cf6291475379d5a4b5456b2fca31461e302459a917a36ed82642ed3980dfa
