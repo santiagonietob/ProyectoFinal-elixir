@@ -20,3 +20,4 @@ id,nombre,correo,rol,salt,hash
 19,santii,santi@gma.cpm,organizador,FNdp/x7IWuWGQuAq98kevg==,7e81196ec8884c6aab8721b1018bda293bf1eee9effca67d26db8aba5ec6cd2a
 20,Maria,maria@gmail.com,organizador,Jk1R6AaeeMOjhla44s7jgA==,d47c1b3470905afaaa577ec583d45c51191ff1eedf7d070dadf7814fbcceab02
 21,Ana,ana@gmail.com,participante,cnIpB3et+3XuRAgXc1DBhA==,4e0ae3a307b97d816a2d2d1587de112a08e07713db3635112a0d48c4a04cd9c3
+22,Sofi,sofi@gmail.com,mentor,ZrsU0Bjb8Tk0umWo50AoKw==,da9af43a4597d3d7aea7e06281364f42864058768eebe405ca801e61aa9be1b9
