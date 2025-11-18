@@ -108,7 +108,6 @@ end
 
     :cont
   end
-
   defp dispatch(<<"/sala ", rest::binary>>) do
     sala = String.trim(rest)
 
@@ -121,19 +120,6 @@ end
 
     :cont
   end
-
-  defp listen_sala(sala) do
-    receive do
-      {:sala_msg, ^sala, payload} ->
-        IO.puts("[#{payload.fecha_iso}] #{payload.usuario}: #{payload.texto}")
-        listen_sala(sala)
-
-      _otro ->
-        # Ignora mensajes raros y sigue escuchando
-        listen_sala(sala)
-    end
-  end
-
   defp dispatch(<<"/say ", rest::binary>>) do
     [sala | texto_lista] = String.split(rest, " ")
     texto = Enum.join(texto_lista, " ")
@@ -220,6 +206,17 @@ end
         escuchar_avances(proyecto_id, segundos)
     after
       1_000 -> escuchar_avances(proyecto_id, segundos - 1)
+    end
+  end
+
+  defp listen_sala(sala) do
+    receive do
+      {:sala_msg, ^sala, payload} ->
+        IO.puts("[#{payload.fecha_iso}] #{payload.usuario}: #{payload.texto}")
+        listen_sala(sala)
+
+      _otro ->
+        listen_sala(sala)
     end
   end
 end

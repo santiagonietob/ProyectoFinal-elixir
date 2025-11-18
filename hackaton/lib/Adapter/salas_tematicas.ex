@@ -8,8 +8,7 @@ defmodule HackathonApp.Adapter.SalasTematicas do
   Los procesos suscritos reciben:
     {:sala_msg, sala, %{usuario: nombre, texto: texto, fecha_iso: fecha}}
 
-  Se espera que el nodo servidor sea: nodoservidor@192.168.1.28
-  y que en ese nodo exista el GenServer registrado como :salas_tematicas.
+  El servidor de salas vive en el nodo: nodoservidor@192.168.1.28
   """
 
   use GenServer
@@ -19,13 +18,11 @@ defmodule HackathonApp.Adapter.SalasTematicas do
 
   ## ========= API PÚBLICA =========
 
-  # En el nodo servidor, puedes arrancarlo desde el árbol de supervisión
-  # o de forma lazy con ensure_started/0.
   def start_link(_args \\ []) do
     GenServer.start_link(__MODULE__, %{salas: %{}}, name: @nombre)
   end
 
-   @doc """
+  @doc """
   Asegura que el servidor de salas esté disponible.
 
   - En el nodo servidor (`@nodo_servidor`): arranca el GenServer local si no existe.
@@ -40,35 +37,21 @@ defmodule HackathonApp.Adapter.SalasTematicas do
         {:ok, pid}
 
       nil ->
-        IO.puts("[Salas] Iniciando GenServer local en nodo servidor #{inspect(node())}")
-
         case start_link([]) do
-          {:ok, pid} ->
-            IO.puts("[Salas] GenServer :salas_tematicas iniciado en servidor")
-            {:ok, pid}
-
-          {:error, {:already_started, pid}} ->
-            {:ok, pid}
-
-          other ->
-            IO.puts("[Salas] Error al iniciar en servidor: #{inspect(other)}")
-            other
+          {:ok, pid} -> {:ok, pid}
+          {:error, {:already_started, pid}} -> {:ok, pid}
+          other -> other
         end
     end
   end
 
   # Versión que corre en cualquier otro nodo (cliente)
   defp ensure_started(_otra_maquina) do
-    IO.puts("[Salas] Nodo actual: #{inspect(node())}")
-    IO.puts("[Salas] Intentando conectar a #{@nodo_servidor}...")
-
     case Node.connect(@nodo_servidor) do
       true ->
-        IO.puts("[Salas] Conectado a #{@nodo_servidor}. Haciendo RPC ensure_started...")
         :rpc.call(@nodo_servidor, __MODULE__, :ensure_started, [])
 
       false ->
-        IO.puts("[Salas] FALLÓ Node.connect(#{inspect(@nodo_servidor)})")
         {:error, :no_se_pudo_conectar_nodo_servidor}
     end
   end
@@ -79,13 +62,12 @@ defmodule HackathonApp.Adapter.SalasTematicas do
       {:ok, _} ->
         sala = normalizar(sala)
         destino = destino()
-        IO.puts("[Salas] Suscribiendo #{inspect(self())} a sala #{sala} en #{inspect(destino)}")
-
         send(destino, {:suscribir, self(), sala})
         :ok
 
       error ->
-        IO.puts("[Salas] ERROR en suscribirse/1: #{inspect(error)}")
+        # Si quieres, elimina esta línea para que ni siquiera muestre errores
+        IO.puts("No se pudo suscribir a salas: #{inspect(error)}")
         error
     end
   end
@@ -100,34 +82,15 @@ defmodule HackathonApp.Adapter.SalasTematicas do
 
         payload = %{usuario: usuario, texto: texto, fecha_iso: fecha}
         destino = destino()
-
-        IO.puts("[Salas] Enviando mensaje a sala #{sala} en #{inspect(destino)}")
-
         send(destino, {:mensaje, sala, payload})
         :ok
 
       error ->
-        IO.puts("[Salas] ERROR en publicar/3: #{inspect(error)}")
+        IO.puts("No se pudo publicar en salas: #{inspect(error)}")
         error
     end
   end
 
-  @doc "Publica un mensaje en la sala."
-  def publicar(sala, usuario, texto)
-      when is_binary(sala) and is_binary(usuario) and is_binary(texto) do
-    with {:ok, _} <- ensure_started() do
-      sala = normalizar(sala)
-      fecha = DateTime.utc_now() |> DateTime.to_iso8601()
-
-      payload = %{usuario: usuario, texto: texto, fecha_iso: fecha}
-      destino = destino()
-
-      send(destino, {:mensaje, sala, payload})
-      :ok
-    end
-  end
-
-  # En cualquier otro tipo de parámetro, devuelve error
   def publicar(_, _, _), do: {:error, :parametros_invalidos}
 
   ## ========= Callbacks =========
@@ -176,8 +139,6 @@ defmodule HackathonApp.Adapter.SalasTematicas do
 
   # ========= Helpers internos =========
 
-  # En el nodo servidor el destino es el nombre local;
-  # en los clientes es el {nombre, nodo_servidor}
   defp destino do
     if node() == @nodo_servidor do
       @nombre

@@ -9,7 +9,6 @@ defmodule HackathonApp.Adapter.InterfazConsolaProyectos do
   alias HackathonApp.Adapter.InterfazConsolaChat
   alias HackathonApp.Adapter.InterfazConsolaEquipos
   alias HackathonApp.Adapter.InterfazConsolaLogin
-  alias HackathonApp.Adapter.SalasTematicas
   alias HackathonApp.Adapter.PersistenciaCSV, as: CSV
 
   # ====== ENTRADA ======
