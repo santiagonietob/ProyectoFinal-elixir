@@ -207,7 +207,7 @@ Si desea usar la aplicación en modo distribuido (varios equipos conectados entr
 1. En una máquina que actúe como servidor, inicie:
 
 ```powershell
-elixir --name nodoservidor@IP --cookie c -S mix run --no-halt
+elixir --name nodocliente1@192.168.11.103 --cookie hackathon -S mix run --no-halt
 ```
 
 2. En otras máquinas (clientes), inicie con names distintos y la misma cookie:
@@ -294,7 +294,7 @@ Hackathon App es un sistema de gestión para eventos tipo hackathon que permite:
 
 3. **Iniciar el sistema**
    ```bash
-   mix run --no-halt
+   elixir --name nodocliente1@192.168.11.103 --cookie hackathon -S mix run --no-halt
    ```
 
 ## Uso del Sistema
