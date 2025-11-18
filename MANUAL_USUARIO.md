@@ -292,10 +292,16 @@ Hackathon App es un sistema de gestión para eventos tipo hackathon que permite:
    mix deps.get
    ```
 
-3. **Iniciar el sistema**
+3. **Iniciar el sistema modo servidor**
+   ```bash
+   elixir --name nodoservidor@192.168.11.103 --cookie hackathon -S mix run --no-halt
+   ```
+
+4. **Iniciar el sistema modo cliente**
    ```bash
    elixir --name nodocliente1@192.168.11.103 --cookie hackathon -S mix run --no-halt
    ```
+
 
 ## Uso del Sistema
 
