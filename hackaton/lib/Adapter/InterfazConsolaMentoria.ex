@@ -15,8 +15,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   # ====== Menú Mentoría ======
   defp loop(u) do
-    IO.puts("\n=== MENÚ DE MENTORÍA ===\n")
-    IO.puts("Mentor: #{u.nombre}\n")
+    IO.puts("\n" <> IO.ANSI.cyan())
+    IO.puts("\n=== MENÚ DE MENTORÍA ===")
+    IO.puts(IO.ANSI.reset())
+    IO.puts(""<> IO.ANSI.yellow())
+    IO.puts("Mentor: #{u.nombre}")
+    IO.puts(IO.ANSI.reset())
     IO.puts("1) Ver equipos")
     IO.puts("2) Ver proyectos")
     IO.puts("3) Dar mentoría (dejar comentario)")

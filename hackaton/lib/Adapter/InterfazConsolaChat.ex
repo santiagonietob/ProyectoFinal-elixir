@@ -3,18 +3,14 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   Cliente de chat en tiempo real para la Hackathon.
   Se invoca desde el menú principal: "3) Comunicación en tiempo real".
   """
-
-  # ═══════════════════════════════════════════════════════════
-  #  CONFIGURACIÓN - Modifica solo estas líneas
-  # ═══════════════════════════════════════════════════════════
-
   @nombre_servicio_local :cliente_chat
 
   # Este tuple no se usa directamente, pero lo dejamos por si quieres extenderlo
-  @servicio_local {@nombre_servicio_local, :"nodocliente1@192.168.157.60"}
+  @servicio_local {@nombre_servicio_local, :"nodocliente@192.168.11.103"}
 
   # Nodo del servidor de chat (la PC donde corre HackathonApp con ChatServidor)
-  @nodo_remoto :"nodoservidor@192.168.157.60"
+ @nodo_remoto :"nodoservidor@192.168.11.103"
+
 
   # Nombre registrado del servidor de chat en ese nodo
   @servicio_remoto {:chat_servidor, @nodo_remoto}
