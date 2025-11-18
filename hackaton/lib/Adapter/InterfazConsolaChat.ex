@@ -9,8 +9,7 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
   @servicio_local {@nombre_servicio_local, :"nodocliente@192.168.11.103"}
 
   # Nodo del servidor de chat (la PC donde corre HackathonApp con ChatServidor)
- @nodo_remoto :"nodoservidor@192.168.11.103"
-
+  @nodo_remoto :"nodoservidor@192.168.11.103"
 
   # Nombre registrado del servidor de chat en ese nodo
   @servicio_remoto {:chat_servidor, @nodo_remoto}
@@ -130,7 +129,12 @@ defmodule HackathonApp.Adapter.InterfazConsolaChat do
     IO.puts(IO.ANSI.light_white() <> "  /usuarios  - Ver usuarios conectados" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.light_white() <> "  /ayuda     - Mostrar esta ayuda" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.light_white() <> "  /salir     - Salir del chat" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_white() <> "  Cualquier otro texto será enviado como mensaje" <> IO.ANSI.reset())
+
+    IO.puts(
+      IO.ANSI.light_white() <>
+        "  Cualquier otro texto será enviado como mensaje" <> IO.ANSI.reset()
+    )
+
     IO.puts(IO.ANSI.light_black() <> "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" <> IO.ANSI.reset() <> "\n")
   end
 

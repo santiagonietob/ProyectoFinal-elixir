@@ -4,13 +4,10 @@ defmodule HackathonApp do
 
   @impl true
   def start(_type, _args) do
-    IO.puts("\n" <> IO.ANSI.cyan() <> "Iniciando HackathonApp..." <> IO.ANSI.reset())
+    IO.puts("\nIniciando HackathonApp...")
 
     base_children = [
-      # Servidor de avances como GenServer (usa start_link/1)
-      {HackathonApp.Adapter.AvancesServidor, []},
-
-      # UI de login: no reiniciar la UI si se cierra
+      # UI: no reiniciar la UI
       %{
         id: :ui_login,
         start: {Task, :start_link, [fn -> InterfazConsolaLogin.iniciar() end]},
@@ -20,7 +17,10 @@ defmodule HackathonApp do
       }
     ]
 
-    children = maybe_add_chat_server(base_children)
+    children =
+      base_children
+      |> maybe_add_avances_servidor()
+      |> maybe_add_chat_servidor()
 
     Supervisor.start_link(children,
       strategy: :one_for_one,
@@ -28,12 +28,25 @@ defmodule HackathonApp do
     )
   end
 
-  # Solo el nodo servidor levanta el ChatServidor
-  defp maybe_add_chat_server(children) do
+  # Solo el nodo servidor levanta el servidor de avances
+  defp maybe_add_avances_servidor(children) do
     case node() do
-      # AJUSTA ESTE NOMBRE AL QUE USES EN EL SERVIDOR
-      # ej: elixir --name nodoservidor@192.168.11.103 -S mix run --no-halt
-        :"nodoservidor@192.168.11.103" ->
+      # AJUSTA ESTE NOMBRE AL QUE USAS COMO SERVIDOR
+      :"nodoservidor@192.168.11.103" ->
+        children ++
+          [
+            {HackathonApp.Adapter.AvancesServidor, []}
+          ]
+
+      _ ->
+        children
+    end
+  end
+
+  # Tu función existente para ChatServidor, ajustada igual:
+  defp maybe_add_chat_servidor(children) do
+    case node() do
+      :"nodoservidor@192.168.11.103" ->
         children ++
           [
             %{
@@ -45,7 +58,6 @@ defmodule HackathonApp do
             }
           ]
 
-      # En los demás nodos (clientes) no se arranca el servidor de chat
       _ ->
         children
     end

@@ -15,9 +15,13 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
 
   # ====== Menú Mentoría ======
   defp loop(u) do
-    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset())
+    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== MENÚ DE MENTORÍA ===" <> IO.ANSI.reset() <> "\n")
     IO.puts(IO.ANSI.yellow() <> "Mentor: #{u.nombre}" <> IO.ANSI.reset())
-    IO.puts(IO.ANSI.light_black() <> "----------------------------------------" <> IO.ANSI.reset())
+
+    IO.puts(
+      IO.ANSI.light_black() <> "----------------------------------------" <> IO.ANSI.reset()
+    )
+
     IO.puts(IO.ANSI.green() <> "1) Ver equipos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Ver proyectos" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "3) Dar mentoría (dejar comentario)" <> IO.ANSI.reset())
@@ -88,14 +92,21 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
           Enum.each(equipos, fn e ->
             tema = Map.get(e, :tema, Map.get(e, :nombre, "sin_tema"))
             estado = if Map.get(e, :activo, true), do: "activo", else: "inactivo"
-            IO.puts(IO.ANSI.cyan() <> "• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})" <> IO.ANSI.reset())
+
+            IO.puts(
+              IO.ANSI.cyan() <>
+                "• #{tema} (id=#{Map.get(e, :id, "N/A")}, #{estado})" <> IO.ANSI.reset()
+            )
           end)
 
         {:error, m} ->
           IO.puts(IO.ANSI.red() <> "Error al listar equipos: " <> to_string(m) <> IO.ANSI.reset())
       end
     else
-      IO.puts(IO.ANSI.red() <> "Acceso denegado. Esta sección es solo lectura para mentor." <> IO.ANSI.reset())
+      IO.puts(
+        IO.ANSI.red() <>
+          "Acceso denegado. Esta sección es solo lectura para mentor." <> IO.ANSI.reset()
+      )
     end
   end
 
@@ -154,7 +165,9 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         {:error, m} -> IO.puts(m)
       end
     else
-      IO.puts(IO.ANSI.red() <> "Acceso denegado (no puedes registrar mentoría)." <> IO.ANSI.reset())
+      IO.puts(
+        IO.ANSI.red() <> "Acceso denegado (no puedes registrar mentoría)." <> IO.ANSI.reset()
+      )
     end
   end
 
@@ -177,7 +190,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         IO.puts("\n" <> IO.ANSI.green() <> "--- Avances recientes ---" <> IO.ANSI.reset())
 
         Enum.each(avances, fn a ->
-          IO.puts(IO.ANSI.cyan() <> "[#{a.fecha_iso}] (proy #{a.proyecto_id}) #{a.contenido}" <> IO.ANSI.reset())
+          IO.puts(
+            IO.ANSI.cyan() <>
+              "[#{a.fecha_iso}] (proy #{a.proyecto_id}) #{a.contenido}" <> IO.ANSI.reset()
+          )
         end)
       end
     else
@@ -195,10 +211,17 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
           IO.puts(IO.ANSI.yellow() <> "Sin miembros o equipo inexistente." <> IO.ANSI.reset())
 
         miembros ->
-          IO.puts("\n" <> IO.ANSI.green() <> "--- Miembros de #{String.trim(nombre_eq)} ---" <> IO.ANSI.reset())
+          IO.puts(
+            "\n" <>
+              IO.ANSI.green() <>
+              "--- Miembros de #{String.trim(nombre_eq)} ---" <> IO.ANSI.reset()
+          )
 
           Enum.each(miembros, fn m ->
-            IO.puts(IO.ANSI.cyan() <> "• usuario_id=#{m.usuario_id} rol_en_equipo=#{m.rol_en_equipo}" <> IO.ANSI.reset())
+            IO.puts(
+              IO.ANSI.cyan() <>
+                "• usuario_id=#{m.usuario_id} rol_en_equipo=#{m.rol_en_equipo}" <> IO.ANSI.reset()
+            )
           end)
       end
     else
@@ -227,10 +250,17 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         if mensajes == [] do
           IO.puts(IO.ANSI.yellow() <> "No hay mensajes para ese equipo." <> IO.ANSI.reset())
         else
-          IO.puts("\n" <> IO.ANSI.green() <> "--- Mensajes recientes (#{String.trim(nombre_eq)}) ---" <> IO.ANSI.reset())
+          IO.puts(
+            "\n" <>
+              IO.ANSI.green() <>
+              "--- Mensajes recientes (#{String.trim(nombre_eq)}) ---" <> IO.ANSI.reset()
+          )
 
           Enum.each(mensajes, fn m ->
-            IO.puts(IO.ANSI.cyan() <> "[#{m.fecha}] (user #{m.usuario_id}) #{m.texto}" <> IO.ANSI.reset())
+            IO.puts(
+              IO.ANSI.cyan() <>
+                "[#{m.fecha}] (user #{m.usuario_id}) #{m.texto}" <> IO.ANSI.reset()
+            )
           end)
         end
       else
@@ -251,7 +281,10 @@ defmodule HackathonApp.Adapter.InterfazConsolaMentoria do
         fecha = DateTime.utc_now() |> DateTime.to_iso8601()
         fila = ["", Integer.to_string(equipo_id), Integer.to_string(u.id), limpiar(texto), fecha]
         :ok = CSV.agregar("data/mensajes.csv", fila)
-        IO.puts(IO.ANSI.green() <> "Mensaje enviado a #{String.trim(nombre_eq)}." <> IO.ANSI.reset())
+
+        IO.puts(
+          IO.ANSI.green() <> "Mensaje enviado a #{String.trim(nombre_eq)}." <> IO.ANSI.reset()
+        )
       else
         {:error, m} -> IO.puts(m)
       end

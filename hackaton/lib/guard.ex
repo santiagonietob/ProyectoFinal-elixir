@@ -15,7 +15,11 @@ defmodule HackathonApp.Guard do
         :ok
 
       %{rol: other} ->
-        IO.puts(IO.ANSI.red() <> "\nAcceso denegado. Tu rol es #{other}, se requiere #{required}." <> IO.ANSI.reset())
+        IO.puts(
+          IO.ANSI.red() <>
+            "\nAcceso denegado. Tu rol es #{other}, se requiere #{required}." <> IO.ANSI.reset()
+        )
+
         InterfazConsolaLogin.iniciar()
         throw(:halt)
     end

@@ -6,8 +6,13 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
   # ====== Punto de entrada ======
   def iniciar, do: loop()
 
+
   defp loop do
-    IO.puts("\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA === \n" <> IO.ANSI.reset())
+    Process.sleep(300)
+    IO.puts(
+      "\n" <> IO.ANSI.cyan_background() <> "=== HACKATHON COLABORATIVA ===" <> IO.ANSI.reset() <> "\n"
+    )
+
     IO.puts(IO.ANSI.green() <> "1) Iniciar sesión" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.green() <> "2) Registrarme (si no tengo cuenta)" <> IO.ANSI.reset())
     IO.puts(IO.ANSI.red() <> "0) Salir" <> IO.ANSI.reset())
@@ -38,7 +43,11 @@ defmodule HackathonApp.Adapter.InterfazConsolaLogin do
     case AuthServicio.login(nombre, pass) do
       {:ok, u} ->
         start_session(u)
-        IO.puts(IO.ANSI.green() <> "\nBienvenido #{u.nombre} (Interfaz #{u.rol})" <> IO.ANSI.reset())
+
+        IO.puts(
+          IO.ANSI.green() <> "\nBienvenido #{u.nombre} (Interfaz #{u.rol})" <> IO.ANSI.reset()
+        )
+
         ruteo_por_rol(u.rol)
 
       {:error, m} ->

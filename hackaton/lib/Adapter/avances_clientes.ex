@@ -9,19 +9,20 @@ defmodule HackathonApp.Adapter.AvancesCliente do
   """
 
   # {proceso_remoto_registrado, nodo_remoto}
-  @servicio_remoto {:servicio_avances, :nodoservidor@localhost}
+  @servicio_remoto {:servicio_avances, :"nodoservidor@192.168.11.103"}
   @nombre_local :servicio_avances
 
-  @spec suscribirse(non_neg_integer()) :: :ok | {:error, term()}
-  def suscribirse(proyecto_id) when is_integer(proyecto_id) and proyecto_id > 0 do
+  @spec suscribirse(non_neg_integer(), pid()) :: :ok | {:error, term()}
+  def suscribirse(proyecto_id, pid \\ self())
+      when is_integer(proyecto_id) and proyecto_id > 0 and is_pid(pid) do
     case conectar_remoto(elem(@servicio_remoto, 1)) do
       :ok ->
-        send({elem(@servicio_remoto, 0), elem(@servicio_remoto, 1)}, {:suscribir, self()})
+        send({elem(@servicio_remoto, 0), elem(@servicio_remoto, 1)}, {:suscribir, pid})
         :ok
 
       :error ->
         with :ok <- HackathonApp.Adapter.AvancesServidor.ensure_started() do
-          send(@nombre_local, {:suscribir, self()})
+          send(@nombre_local, {:suscribir, pid})
           :ok
         else
           {:error, reason} -> {:error, reason}
@@ -29,11 +30,11 @@ defmodule HackathonApp.Adapter.AvancesCliente do
     end
   end
 
-  def suscribirse(other), do: {:error, {:proyecto_id_invalido, other}}
+  def suscribirse(other, _pid), do: {:error, {:proyecto_id_invalido, other}}
 
   @spec publicar_avance(non_neg_integer(), map()) :: :ok | {:error, term()}
-  def publicar_avance(proyecto_id, avance) when is_integer(proyecto_id) and is_map(avance) do
-    avance = Map.put_new(avance, :proyecto_id, proyecto_id)
+def publicar_avance(proyecto_id, avance) when is_integer(proyecto_id) and is_map(avance) do
+  avance = Map.put_new(avance, :proyecto_id, proyecto_id)
 
     case conectar_remoto(elem(@servicio_remoto, 1)) do
       :ok ->

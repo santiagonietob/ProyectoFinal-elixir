@@ -10,6 +10,7 @@ defmodule HackathonApp.Adapter.ChatServidor do
 
   # Estado: %{usuarios: %{pid => %{nombre: String.t(), monitor: reference()}}}
   def main() do
+  
     mostrar_banner()
 
     Process.register(self(), @nombre_servicio)
@@ -194,7 +195,6 @@ defmodule HackathonApp.Adapter.ChatServidor do
       %{nombre: nombre} ->
         mensaje_formateado = "[#{nombre}] #{texto}"
         broadcast(estado, mensaje_formateado, :usuario)
-        IO.puts("Mensaje de #{nombre}: #{texto}")
         estado
     end
   end
